@@ -1,0 +1,43 @@
+{
+  "name": "countic",
+  "version": "2.0.0-alpha.1",
+  "description": "Discord bot that shows YouTube, Twitch and Kick statistics in voice channel names",
+  "type": "module",
+  "private": true,
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "main": "dist/bot/index.js",
+  "scripts": {
+    "dev:bot": "tsx watch --env-file-if-exists=.env src/bot/index.ts",
+    "dev:web": "tsx watch --env-file-if-exists=.env src/web/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "start:bot": "node dist/bot/index.js",
+    "start:web": "node dist/web/index.js",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@prometheus-io/client": "^0.16.1",
+    "discord.js": "^14.27.0",
+    "drizzle-orm": "^0.45.4",
+    "pg": "^8.23.1",
+    "pino": "^10.4.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.6.5",
+    "@types/pg": "^8.23.1",
+    "drizzle-kit": "^0.31.11",
+    "eslint": "^10.13.0",
+    "pino-pretty": "^13.2.0",
+    "tsx": "^4.23.15",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.0"
+  }
+}
