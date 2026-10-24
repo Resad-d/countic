@@ -22,6 +22,12 @@ const configSchema = z.object({
   DISCORD_TOKEN: optionalEnvString,
   DISCORD_CLIENT_ID: optionalEnvString,
   DISCORD_CLIENT_SECRET: optionalEnvString,
+
+  YOUTUBE_API_KEY: optionalEnvString,
+  TWITCH_CLIENT_ID: optionalEnvString,
+  TWITCH_CLIENT_SECRET: optionalEnvString,
+  KICK_CLIENT_ID: optionalEnvString,
+  KICK_CLIENT_SECRET: optionalEnvString,
 });
 
 type Config = z.infer<typeof configSchema>;
