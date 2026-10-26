@@ -15,6 +15,13 @@
       "when": 1792701320646,
       "tag": "0001_panels_counters",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792875212105,
+      "tag": "0002_scheduler",
+      "breakpoints": true
     }
   ]
 }

@@ -3,6 +3,8 @@ import { childLogger } from '../lib/logger.js';
 import { pool } from '../db/client.js';
 import { createClient } from './client.js';
 import { wireEvents } from './events.js';
+import { createProviders } from './platforms/index.js';
+import { startScheduler } from './scheduler.js';
 
 /**
  * Bot entrypoint.
@@ -21,6 +23,8 @@ if (!config.DISCORD_TOKEN) {
 } else {
   const client = createClient();
   wireEvents(client);
+  const providers = createProviders(log);
+  const stopScheduler = startScheduler(client, providers);
 
   process.on('unhandledRejection', (err) => {
     log.error({ err }, 'unhandled rejection');
@@ -30,6 +34,7 @@ if (!config.DISCORD_TOKEN) {
     process.on(signal, () => {
       log.info({ signal }, 'shutting down');
       // Discord socket first, then the pool, so nothing fires mid teardown.
+      stopScheduler();
       setTimeout(() => process.exit(0), 5_000).unref();
       void (async () => {
         try {
