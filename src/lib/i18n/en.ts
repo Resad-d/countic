@@ -5,6 +5,7 @@
 export const en = {
   'choice.format.compact': 'Compact (1.23M)',
   'choice.format.full': 'Full (1,230,000)',
+  'cmd.admin.desc': 'Owner only diagnostics.',
   'cmd.customize.desc': 'View or edit counter names, number format and visibility per counter.',
   'cmd.customize.format.desc': 'Choose compact (1.23K) or full (1,230) numbers for one counter.',
   'cmd.customize.template.desc': 'Change the name template of one counter, like Subs: [subs].',

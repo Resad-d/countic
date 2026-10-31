@@ -23,6 +23,8 @@ const configSchema = z.object({
   DISCORD_TOKEN: optionalEnvString,
   DISCORD_CLIENT_ID: optionalEnvString,
   DISCORD_CLIENT_SECRET: optionalEnvString,
+  DISCORD_ADMIN_GUILD_ID: optionalEnvString,
+  DISCORD_OWNER_ID: optionalEnvString,
 
   YOUTUBE_API_KEY: optionalEnvString,
   TWITCH_CLIENT_ID: optionalEnvString,

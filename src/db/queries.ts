@@ -1,4 +1,4 @@
-import { db } from './client.js';
+import { db, pool } from './client.js';
 import { commandUsage, counters, guilds, panels } from './schema.js';
 import { and, eq, inArray, isNotNull, isNull, lte, or, sql } from 'drizzle-orm';
 import type { Platform } from '../lib/counters/platform-types.js';
@@ -285,4 +285,83 @@ export async function resolutionSpentToday(guildId: string): Promise<number> {
   `);
   const row = result.rows[0] as { spent?: string | number } | undefined;
   return Number(row?.spent ?? 0);
+}
+
+export type AdminStats = {
+  guilds: number;
+  panels: { platform: Platform; total: number; enabled: number }[];
+  counters: { type: string; total: number; enabled: number }[];
+  usage: { command: string; uses: number; failed: number }[];
+};
+
+// Counts for the admin view.
+export async function selectAdminStats(): Promise<AdminStats> {
+  const [guilds, panels, counters, usage] = await Promise.all([
+    db.execute(sql`select count(*) as total from guilds`),
+    db.execute(sql`
+      select platform, count(*) as total, count(*) filter (where enabled) as enabled
+      from panels group by platform order by platform
+    `),
+    db.execute(sql`
+      select type, count(*) as total, count(*) filter (where enabled) as enabled
+      from counters group by type order by type
+    `),
+    db.execute(sql`
+      select command, count(*) as uses, count(*) filter (where ok = false) as failed
+      from command_usage
+      where created_at > now() - interval '24 hours'
+      group by command order by uses desc
+    `),
+  ]);
+  const num = (value: unknown): number => Number(value ?? 0);
+  return {
+    guilds: num((guilds.rows[0] as { total?: string } | undefined)?.total),
+    panels: (panels.rows as { platform: string; total: string; enabled: string }[]).map((row) => ({
+      platform: row.platform as Platform,
+      total: num(row.total),
+      enabled: num(row.enabled),
+    })),
+    counters: (counters.rows as { type: string; total: string; enabled: string }[]).map((row) => ({
+      type: row.type,
+      total: num(row.total),
+      enabled: num(row.enabled),
+    })),
+    usage: (usage.rows as { command: string; uses: string; failed: string }[]).map((row) => ({
+      command: row.command,
+      uses: num(row.uses),
+      failed: num(row.failed),
+    })),
+  };
+}
+
+export type AdminSqlResult = {
+  fields: string[];
+  rows: Record<string, unknown>[];
+  rowCount: number;
+};
+
+/**
+ * One statement under a read only transaction with a 5s timeout.
+ * The finally path clears an aborted transaction before the pool reuses the connection.
+ */
+export async function adminSql(query: string): Promise<AdminSqlResult> {
+  const client = await pool.connect();
+  let finished = false;
+  try {
+    await client.query('begin transaction read only');
+    await client.query("set local statement_timeout = '5s'");
+    const result = await client.query(query);
+    await client.query('rollback');
+    finished = true;
+    return {
+      fields: result.fields.map((field) => field.name),
+      rows: result.rows as Record<string, unknown>[],
+      rowCount: result.rowCount ?? result.rows.length,
+    };
+  } finally {
+    if (!finished) {
+      await client.query('rollback').catch(() => {});
+    }
+    client.release();
+  }
 }

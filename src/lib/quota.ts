@@ -108,3 +108,13 @@ export async function resolutionAllowed(guildId: string): Promise<boolean> {
   const spent = await resolutionSpentToday(guildId);
   return spent < config.RESOLUTION_DAILY_PER_GUILD;
 }
+
+/** Today's spend against both pools, for the admin view. */
+export async function quotaSnapshot(): Promise<{ refresh: number; resolution: number }> {
+  const result = await db.execute(sql`select value from meta where key = ${dayKey()}`);
+  const value = (result.rows[0] as { value?: Record<string, number> } | undefined)?.value;
+  return {
+    refresh: value?.refresh ?? 0,
+    resolution: value?.resolution ?? 0,
+  };
+}

@@ -28,6 +28,8 @@ export type CommandContext = {
   commands: CommandDef[];
   locale: Locale;
   t: Translator;
+  auditDetail?: string;
+  auditOk?: boolean;
 };
 
 /** A Discord permission bit, or null when none is needed. */
@@ -38,6 +40,7 @@ export type CommandDef = {
   descKey: CatalogKey;
   cooldownSeconds: number;
   requiredPerm: Perm;
+  ownerOnly?: boolean;
   /** Buttons and modals this command created, matched by customId prefix in the router. */
   buttons?: ButtonHandler[];
   modals?: ModalHandler[];

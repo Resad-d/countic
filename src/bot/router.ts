@@ -13,12 +13,23 @@ import { insertCommandUsage } from '../db/queries.js';
 import { config } from '../lib/config.js';
 import { resolveLocale, translator } from '../lib/i18n/index.js';
 import { childLogger } from '../lib/logger.js';
-import { buttonHandlers, modalHandlers, userCommands, type Perm, type Providers } from './commands/index.js';
+import { admin } from './commands/admin.js';
+import {
+  buttonHandlers,
+  modalHandlers,
+  userCommands,
+  type CommandContext,
+  type CommandDef,
+  type Perm,
+  type Providers,
+} from './commands/index.js';
 import { storeCommandIds } from './commands/help.js';
 
 /** Interaction routing, command registration, per guild cooldowns and auditing. */
 
 const log = childLogger('commands');
+
+const allCommands: CommandDef[] = [...userCommands, admin];
 
 /** One-shot global slash command registration on startup. */
 async function registerCommands(): Promise<void> {
@@ -35,6 +46,18 @@ async function registerCommands(): Promise<void> {
   }[];
   storeCommandIds(created);
   log.info({ count: body.length }, 'global commands registered');
+  if (!config.DISCORD_ADMIN_GUILD_ID || !config.DISCORD_OWNER_ID) {
+    log.info('admin suite off, DISCORD_ADMIN_GUILD_ID or DISCORD_OWNER_ID missing');
+    return;
+  }
+  try {
+    await rest.put(Routes.applicationGuildCommands(config.DISCORD_CLIENT_ID, config.DISCORD_ADMIN_GUILD_ID), {
+      body: [admin.data.toJSON()],
+    });
+    log.info('admin command registered to the admin guild');
+  } catch (err) {
+    log.error({ err }, 'admin command registration failed');
+  }
 }
 
 // Guild plus command name to expiry timestamp, pruned lazily so the map stays bounded.
@@ -112,17 +135,21 @@ async function handleChatCommand(
   if (!interaction.inGuild() || !interaction.guildId) {
     return;
   }
-  const command = userCommands.find((def) => def.data.name === interaction.commandName);
+  const command = allCommands.find((def) => def.data.name === interaction.commandName);
   if (!command) {
     return;
   }
   const locale = resolveLocale(interaction.locale);
   const t = translator(locale);
   const sub = interaction.options.getSubcommand(false) ?? undefined;
+  const ctx: CommandContext = { client, providers, commands: userCommands, locale, t };
   let ok = true;
   const started = Date.now();
   try {
-    if (command.requiredPerm && !interaction.memberPermissions?.has(command.requiredPerm)) {
+    if (command.ownerOnly && interaction.user.id !== config.DISCORD_OWNER_ID) {
+      ok = false;
+      await interaction.reply({ content: 'Admin commands are owner-only.', flags: MessageFlags.Ephemeral });
+    } else if (command.requiredPerm && !interaction.memberPermissions?.has(command.requiredPerm)) {
       ok = false;
       await interaction.reply({ content: t('common.noPermission'), flags: MessageFlags.Ephemeral });
     } else {
@@ -132,7 +159,7 @@ async function handleChatCommand(
         const time = Math.floor((Date.now() + remaining * 1000) / 1000);
         await interaction.reply({ content: t('common.cooldown', { time }), flags: MessageFlags.Ephemeral });
       } else {
-        await command.execute(interaction, { client, providers, commands: userCommands, locale, t });
+        await command.execute(interaction, ctx);
       }
     }
   } catch (err) {
@@ -145,9 +172,18 @@ async function handleChatCommand(
       await interaction.reply({ content: text, flags: MessageFlags.Ephemeral }).catch(() => {});
     }
   } finally {
+    const recorded = ctx.auditOk ?? ok;
     const ms = Date.now() - started;
     log.info(
-      { evt: 'command', cmd: command.data.name, sub, guildId: interaction.guildId, userId: interaction.user.id, ms, ok },
+      {
+        evt: 'command',
+        cmd: command.data.name,
+        sub,
+        guildId: interaction.guildId,
+        userId: interaction.user.id,
+        ms,
+        ok: recorded,
+      },
       'command used',
     );
     try {
@@ -155,8 +191,8 @@ async function handleChatCommand(
         command: command.data.name,
         guildId: interaction.guildId,
         userId: interaction.user.id,
-        ok,
-        detail: sub,
+        ok: recorded,
+        detail: ctx.auditDetail ?? sub,
       });
     } catch (err) {
       log.error({ err }, 'command usage insert failed');

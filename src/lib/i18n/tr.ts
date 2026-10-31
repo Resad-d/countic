@@ -3,6 +3,7 @@ import type { Catalog } from './en.js';
 export const tr: Catalog = {
   'choice.format.compact': 'Kısa (1,23K)',
   'choice.format.full': 'Tam (1.230.000)',
+  'cmd.admin.desc': 'Sadece sahibine açık tanılama.',
   'cmd.customize.desc': 'Sayaç adlarını, sayı biçimini ve görünürlüğü sayaç başına görüntüle veya düzenle.',
   'cmd.customize.format.desc': 'Bir sayaç için kısa (1,23K) veya tam (1.230) sayı biçimini seç.',
   'cmd.customize.template.desc': 'Bir sayacın ad şablonunu değiştir, örn. Abone: [subs].',
