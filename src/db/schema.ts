@@ -19,7 +19,6 @@ import {
 
 export const guilds = pgTable('guilds', {
   id: text('id').primaryKey(),
-  locale: varchar('locale', { length: 8 }).notNull().default('en'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });

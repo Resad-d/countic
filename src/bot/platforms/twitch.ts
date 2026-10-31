@@ -1,7 +1,6 @@
 import { childLogger } from '../../lib/logger.js';
 import { createClientCredentialsToken, type TokenManager } from '../../lib/oauth-token.js';
-import { PlatformError } from '../../lib/counters/platform-types.js';
-import type { FetchResult, PlatformProvider, ResolveResult, SourceKind } from '../../lib/counters/platform-types.js';
+import { PlatformError, type FetchResult, type PlatformProvider, type ResolveResult, type SourceKind } from '../../lib/counters/platform-types.js';
 
 const TOKEN_URL = 'https://id.twitch.tv/oauth2/token';
 const HELIX = 'https://api.twitch.tv/helix';

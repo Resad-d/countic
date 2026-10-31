@@ -1,11 +1,14 @@
 /** Platform data provider contracts shared by the scheduler, commands and tools. */
 
-export type Platform = 'youtube' | 'twitch' | 'kick';
+export const PLATFORMS = ['youtube', 'twitch', 'kick'] as const;
+
+export type Platform = (typeof PLATFORMS)[number];
 
 export type StatKey = 'subs' | 'views' | 'videos' | 'followers' | 'viewers';
 
-/** Category is the renamed parent category, not a stat. */
-export type CounterType = StatKey | 'category';
+export const COUNTER_TYPES = ['category', 'subs', 'views', 'videos', 'followers', 'viewers'] as const;
+
+export type CounterType = (typeof COUNTER_TYPES)[number];
 
 /** How a user input referred to a source, decided by the classifier. */
 export type SourceKind =

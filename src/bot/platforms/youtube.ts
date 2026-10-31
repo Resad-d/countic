@@ -1,12 +1,12 @@
 import { childLogger } from '../../lib/logger.js';
-import { PlatformError } from '../../lib/counters/platform-types.js';
-import type {
-  FailureKind,
-  FetchResult,
-  PlatformProvider,
-  ResolveResult,
-  SourceKind,
-  Stats,
+import {
+  PlatformError,
+  type FailureKind,
+  type FetchResult,
+  type PlatformProvider,
+  type ResolveResult,
+  type SourceKind,
+  type Stats,
 } from '../../lib/counters/platform-types.js';
 
 const API = 'https://www.googleapis.com/youtube/v3';

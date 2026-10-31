@@ -5,6 +5,7 @@ import { createClient } from './client.js';
 import { wireEvents } from './events.js';
 import { createProviders } from './platforms/index.js';
 import { startScheduler } from './scheduler.js';
+import { wireCommands } from './router.js';
 
 /**
  * Bot entrypoint.
@@ -24,6 +25,7 @@ if (!config.DISCORD_TOKEN) {
   const client = createClient();
   wireEvents(client);
   const providers = createProviders(log);
+  wireCommands(client, providers);
   const stopScheduler = startScheduler(client, providers);
 
   process.on('unhandledRejection', (err) => {

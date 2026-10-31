@@ -3,10 +3,9 @@ import { CategoryChannel, DiscordAPIError, RESTJSONErrorCodes, VoiceChannel } fr
 import { config } from '../lib/config.js';
 import { childLogger } from '../lib/logger.js';
 import { cadenceStretch, clampToPool, spend } from '../lib/quota.js';
-import { formatCount } from '../lib/counters/format.js';
-import { renderTemplate } from '../lib/counters/render.js';
-import { DEFAULT_TEMPLATES, OFFLINE_LABEL } from '../lib/counters/templates.js';
+import { counterName } from '../lib/counters/names.js';
 import { PlatformError } from '../lib/counters/platform-types.js';
+import { PLATFORMS } from '../lib/counters/platform-types.js';
 import type { FetchResult, Platform, PlatformProvider, Stats } from '../lib/counters/platform-types.js';
 import type { DuePanel, PanelCounter } from '../db/queries.js';
 import {
@@ -14,8 +13,9 @@ import {
   disablePanel,
   markChecked,
   markCheckedWithStats,
-  selectCounters,
+  selectEnabledCounters,
   selectDuePanels,
+  updatePanelSourceName,
 } from '../db/queries.js';
 
 /**
@@ -27,7 +27,6 @@ import {
 const log = childLogger('scheduler');
 
 const YT_BATCH = 50;
-const MAX_NAME_LENGTH = 100;
 
 // Discord rename failures that will never succeed again, everything else retries next tick.
 const PERMANENT_CODES = new Set<number>([
@@ -42,8 +41,6 @@ const CADENCE: Record<Platform, number> = {
   kick: config.KICK_REFRESH_CADENCE_MINUTES,
 };
 
-const PLATFORMS: Platform[] = ['youtube', 'twitch', 'kick'];
-
 // Group items into arrays under a shared key.
 function groupBy<T, K extends string | number>(items: T[], key: (item: T) => K): Map<K, T[]> {
   const map = new Map<K, T[]>();
@@ -54,17 +51,6 @@ function groupBy<T, K extends string | number>(items: T[], key: (item: T) => K):
     map.set(k, list);
   }
   return map;
-}
-
-function counterName(counter: PanelCounter, platform: Platform, stats: Stats, locale: string): string | null {
-  const defaults = DEFAULT_TEMPLATES[platform] as Record<string, string | undefined>;
-  const template = counter.template ?? defaults[counter.type];
-  if (!template) {
-    return null;
-  }
-  const raw = counter.type === 'category' ? undefined : stats.values[counter.type as keyof Stats['values']];
-  const value = raw === undefined ? OFFLINE_LABEL : formatCount(raw, counter.numberFormat, locale);
-  return renderTemplate(template, { name: stats.sourceName, [counter.type]: value }).slice(0, MAX_NAME_LENGTH);
 }
 
 async function renameCounter(counter: PanelCounter, name: string, client: Client): Promise<boolean> {
@@ -110,8 +96,10 @@ async function updatePanel(
   client: Client,
 ): Promise<boolean> {
   let failed = 0;
+  // Number decimals follow the server language.
+  const locale = client.guilds.cache.get(panel.guildId)?.preferredLocale ?? 'en';
   for (const counter of counters) {
-    const name = counterName(counter, panel.platform, stats, panel.locale);
+    const name = counterName(counter, panel.platform, stats, locale);
     if (name === null) {
       continue;
     }
@@ -177,7 +165,7 @@ export function startScheduler(client: Client, providers: Partial<Record<Platfor
           continue;
         }
 
-        const counters = await selectCounters(due.map((panel) => panel.id));
+        const counters = await selectEnabledCounters(due.map((panel) => panel.id));
         const byPanel = groupBy(counters, (counter) => counter.panelId);
 
         for (const panel of due) {
@@ -193,6 +181,10 @@ export function startScheduler(client: Client, providers: Partial<Record<Platfor
               await markChecked(panel.id);
             }
             continue;
+          }
+          if (result.sourceName !== panel.sourceName) {
+            await updatePanelSourceName(panel.id, result.sourceName);
+            panel.sourceName = result.sourceName;
           }
           try {
             await updatePanel(panel, result, byPanel.get(panel.id) ?? [], client);

@@ -25,3 +25,11 @@ export const DEFAULT_TEMPLATES: Record<Platform, Partial<Record<CounterType, str
 
 /** Shown for twitch and kick viewers counters while the stream is offline. */
 export const OFFLINE_LABEL = 'Offline';
+
+/** Shown before a counter has any fetched numbers, until the first update lands. */
+export const PENDING_LABEL = '...';
+
+/** Number format a fresh counter starts on. */
+export function defaultNumberFormat(type: string): 'compact' | 'full' {
+  return type === 'subs' || type === 'followers' ? 'compact' : 'full';
+}

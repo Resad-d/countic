@@ -22,7 +22,9 @@ services:
   migrate:
     build: .
     command: ["npx", "drizzle-kit", "migrate"]
+    env_file: .env
     environment:
+      # Overrides the host URL from .env, containers must use the compose hostname.
       DATABASE_URL: postgres://countic:${COUNTIC_PG_PASSWORD:-countic}@postgres:5432/countic
     depends_on:
       postgres:
@@ -32,11 +34,11 @@ services:
   bot:
     build: .
     command: ["node", "dist/bot/index.js"]
+    env_file: .env
     environment:
       NODE_ENV: production
-      LOG_LEVEL: ${LOG_LEVEL:-info}
+      # Overrides the host URL from .env, containers must use the compose hostname.
       DATABASE_URL: postgres://countic:${COUNTIC_PG_PASSWORD:-countic}@postgres:5432/countic
-      DISCORD_TOKEN: ${DISCORD_TOKEN:-}
     depends_on:
       postgres:
         condition: service_healthy
@@ -50,9 +52,10 @@ services:
     ports:
       # Only the public web port is published.
       - "${WEB_PORT:-3000}:3000"
+    env_file: .env
     environment:
       NODE_ENV: production
-      LOG_LEVEL: ${LOG_LEVEL:-info}
+      # Overrides the host URL from .env, containers must use the compose hostname.
       DATABASE_URL: postgres://countic:${COUNTIC_PG_PASSWORD:-countic}@postgres:5432/countic
       WEB_PORT: 3000
       METRICS_ENABLED: ${METRICS_ENABLED:-true}

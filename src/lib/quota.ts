@@ -1,4 +1,5 @@
 import { db } from '../db/client.js';
+import { resolutionSpentToday } from '../db/queries.js';
 import { config } from './config.js';
 import { childLogger } from './logger.js';
 import { sql } from 'drizzle-orm';
@@ -101,4 +102,9 @@ export async function clampToPool(): Promise<void> {
     where key = ${key}
   `);
   log.warn({ day: key }, 'quota exceeded reported by youtube, all spends paused until pacific midnight');
+}
+
+export async function resolutionAllowed(guildId: string): Promise<boolean> {
+  const spent = await resolutionSpentToday(guildId);
+  return spent < config.RESOLUTION_DAILY_PER_GUILD;
 }

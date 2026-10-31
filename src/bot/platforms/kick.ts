@@ -1,7 +1,6 @@
 import { childLogger } from '../../lib/logger.js';
 import { createClientCredentialsToken, type TokenManager } from '../../lib/oauth-token.js';
-import { PlatformError } from '../../lib/counters/platform-types.js';
-import type { FetchResult, PlatformProvider, ResolveResult, SourceKind } from '../../lib/counters/platform-types.js';
+import { PlatformError, type FetchResult, type PlatformProvider, type ResolveResult, type SourceKind } from '../../lib/counters/platform-types.js';
 
 const TOKEN_URL = 'https://id.kick.com/oauth/token';
 const API = 'https://api.kick.com/public/v1';
@@ -68,7 +67,10 @@ export function createKickProvider(clientId: string, clientSecret: string): Plat
       if (!channel?.broadcaster_user_id) {
         return { failure: 'not-found', message: `kick channel not found for ${value}` };
       }
-      return { sourceId: channel.broadcaster_user_id, sourceName: channel.slug ?? channel.name ?? value };
+      // The users endpoint carries the display-cased name, the slug is all lowercase.
+      const usersBody = (await kickApi(`users?${new URLSearchParams({ id: channel.broadcaster_user_id })}`)) as KickUsersBody;
+      const user = usersBody.data?.[0];
+      return { sourceId: channel.broadcaster_user_id, sourceName: user?.name ?? user?.username ?? channel.slug ?? value };
     },
 
     // Kick API takes a single id per call, comma-separated lists return 400.
