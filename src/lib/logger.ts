@@ -6,6 +6,19 @@ import { config } from './config.js';
 const root = pino({
   level: config.LOG_LEVEL,
   base: { env: config.NODE_ENV },
+  redact: {
+    paths: [
+      'token',
+      '*.token',
+      'authorization',
+      '*.authorization',
+      'password',
+      '*.password',
+      'client_secret',
+      '*.client_secret',
+    ],
+    censor: '[redacted]',
+  },
 });
 
 export function childLogger(service: string): pino.Logger {

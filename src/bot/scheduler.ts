@@ -2,6 +2,7 @@ import type { Channel, Client } from 'discord.js';
 import { CategoryChannel, DiscordAPIError, RESTJSONErrorCodes, VoiceChannel } from 'discord.js';
 import { config } from '../lib/config.js';
 import { childLogger } from '../lib/logger.js';
+import { panelUpdateFailures, panelsUpdated } from '../lib/metrics.js';
 import { cadenceStretch, clampToPool, spend } from '../lib/quota.js';
 import { counterName } from '../lib/counters/names.js';
 import { PlatformError } from '../lib/counters/platform-types.js';
@@ -161,6 +162,7 @@ export function startScheduler(client: Client, providers: Partial<Record<Platfor
             }
           }
           // Transient fetch errors retry on the next tick, so panels stay due.
+          panelUpdateFailures.inc({ platform }, due.length);
           log.warn({ err, platform, sources: sourceIds.length }, 'source fetch failed');
           continue;
         }
@@ -175,6 +177,7 @@ export function startScheduler(client: Client, providers: Partial<Record<Platfor
             continue;
           }
           if ('failure' in result) {
+            panelUpdateFailures.inc({ platform });
             if (result.failure === 'permanent') {
               await disablePanel(panel.id, result.message);
             } else if (result.failure !== 'transient') {
@@ -187,9 +190,15 @@ export function startScheduler(client: Client, providers: Partial<Record<Platfor
             panel.sourceName = result.sourceName;
           }
           try {
-            await updatePanel(panel, result, byPanel.get(panel.id) ?? [], client);
+            const ok = await updatePanel(panel, result, byPanel.get(panel.id) ?? [], client);
+            if (ok) {
+              panelsUpdated.inc({ platform });
+            } else {
+              panelUpdateFailures.inc({ platform });
+            }
           } catch (err) {
             // Transient rename errors retry on the next tick, so the panel stays due.
+            panelUpdateFailures.inc({ platform });
             log.warn({ err, panelId: panel.id }, 'panel update failed');
           }
         }

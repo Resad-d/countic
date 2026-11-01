@@ -1,10 +1,12 @@
 import { config } from '../lib/config.js';
 import { childLogger } from '../lib/logger.js';
+import { startMetricsServer } from '../lib/metrics.js';
 import { pool } from '../db/client.js';
 import { createClient } from './client.js';
 import { wireEvents } from './events.js';
 import { createProviders } from './platforms/index.js';
 import { startScheduler } from './scheduler.js';
+import { startSweepers } from './sweepers.js';
 import { wireCommands } from './router.js';
 
 /**
@@ -27,6 +29,8 @@ if (!config.DISCORD_TOKEN) {
   const providers = createProviders(log);
   wireCommands(client, providers);
   const stopScheduler = startScheduler(client, providers);
+  const stopSweepers = startSweepers(client);
+  const metricsServer = config.METRICS_ENABLED ? startMetricsServer(config.BOT_METRICS_PORT) : undefined;
 
   process.on('unhandledRejection', (err) => {
     log.error({ err }, 'unhandled rejection');
@@ -37,6 +41,8 @@ if (!config.DISCORD_TOKEN) {
       log.info({ signal }, 'shutting down');
       // Discord socket first, then the pool, so nothing fires mid teardown.
       stopScheduler();
+      stopSweepers();
+      metricsServer?.close();
       setTimeout(() => process.exit(0), 5_000).unref();
       void (async () => {
         try {

@@ -11,6 +11,19 @@ export async function ensureGuild(id: string): Promise<void> {
   await db.insert(guilds).values({ id }).onConflictDoNothing();
 }
 
+export async function selectAllGuildIds(): Promise<string[]> {
+  const rows = await db.select({ id: guilds.id }).from(guilds);
+  return rows.map((row) => row.id);
+}
+
+export async function deleteOrphanGuilds(ids: string[]): Promise<number> {
+  if (ids.length === 0) {
+    return 0;
+  }
+  const deleted = await db.delete(guilds).where(inArray(guilds.id, ids)).returning({ id: guilds.id });
+  return deleted.length;
+}
+
 export type DuePanel = {
   id: number;
   guildId: string;
@@ -115,6 +128,14 @@ export async function insertCommandUsage(entry: {
   detail?: string;
 }): Promise<void> {
   await db.insert(commandUsage).values(entry);
+}
+
+export async function deleteOldCommandUsage(retentionDays: number): Promise<number> {
+  const deleted = await db
+    .delete(commandUsage)
+    .where(lte(commandUsage.createdAt, sql`now() - ${retentionDays} * interval '1 day'`))
+    .returning({ id: commandUsage.id });
+  return deleted.length;
 }
 
 export type PanelRow = {

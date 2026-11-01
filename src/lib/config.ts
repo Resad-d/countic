@@ -19,6 +19,7 @@ const configSchema = z.object({
 
   METRICS_ENABLED: boolish,
   METRICS_PORT: z.coerce.number().int().min(1).max(65535).default(9101),
+  BOT_METRICS_PORT: z.coerce.number().int().min(1).max(65535).default(9102),
 
   DISCORD_TOKEN: optionalEnvString,
   DISCORD_CLIENT_ID: optionalEnvString,

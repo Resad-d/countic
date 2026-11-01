@@ -13,6 +13,7 @@ import { insertCommandUsage } from '../db/queries.js';
 import { config } from '../lib/config.js';
 import { resolveLocale, translator } from '../lib/i18n/index.js';
 import { childLogger } from '../lib/logger.js';
+import { commandsTotal } from '../lib/metrics.js';
 import { admin } from './commands/admin.js';
 import {
   buttonHandlers,
@@ -186,6 +187,7 @@ async function handleChatCommand(
       },
       'command used',
     );
+    commandsTotal.inc({ command: command.data.name });
     try {
       await insertCommandUsage({
         command: command.data.name,
