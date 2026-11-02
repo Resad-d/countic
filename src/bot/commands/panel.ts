@@ -243,7 +243,7 @@ export const panel: CommandDef = {
       });
       return;
     }
-    await interaction.deferReply();
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     if (target) {
       await interaction.editReply({
         content: ctx.t('panel.counterConfirm', { counter: counterText(ctx.t, target.type), platform: label }),
@@ -321,13 +321,12 @@ async function handlePanelButton(interaction: ButtonInteraction): Promise<void> 
       leftover > 0
         ? t('panel.counterLeftover', { counter: counterText(t, scope) })
         : t('panel.counterDeleted', { counter: counterText(t, scope) });
-    await interaction.editReply({ content, components: [] });
+    await interaction.editReply({ content: t('common.done'), components: [] });
+    await interaction.followUp({ content: `${content}\n-# ${t('common.requestedBy', { user: interaction.user.username })}` });
     return;
   }
   const { counterCount, leftover } = await teardownPanel(guild, panelRow);
-  if (leftover > 0) {
-    await interaction.editReply({ content: t('panel.deleteLeftovers', { count: leftover }), components: [] });
-  } else {
-    await interaction.editReply({ content: t('panel.deleted', { count: counterCount }), components: [] });
-  }
+  const content = leftover > 0 ? t('panel.deleteLeftovers', { count: leftover }) : t('panel.deleted', { count: counterCount });
+  await interaction.editReply({ content: t('common.done'), components: [] });
+  await interaction.followUp({ content: `${content}\n-# ${t('common.requestedBy', { user: interaction.user.username })}` });
 }

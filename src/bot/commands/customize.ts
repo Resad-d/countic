@@ -212,12 +212,12 @@ export const customize: CommandDef = {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const format = interaction.options.getString('format', true) as 'compact' | 'full';
     await setCounterFormat(counter.id, format);
-    await interaction.editReply(
-      ctx.t('customize.formatSaved', {
-        counter: counterText(ctx.t, counterType),
-        format: ctx.t(format === 'compact' ? 'format.compact' : 'format.full'),
-      }),
-    );
+    const content = ctx.t('customize.formatSaved', {
+      counter: counterText(ctx.t, counterType),
+      format: ctx.t(format === 'compact' ? 'format.compact' : 'format.full'),
+    });
+    await interaction.editReply(ctx.t('common.done'));
+    await interaction.followUp({ content: `${content}\n-# ${ctx.t('common.requestedBy', { user: interaction.user.username })}` });
   },
 };
 
@@ -263,10 +263,14 @@ async function handleTemplateModal(interaction: ModalSubmitInteraction): Promise
       return;
     }
     await setCounterTemplate(row.id, candidate);
-    await interaction.editReply(t('customize.templateSaved', { counter: counterText(t, type) }));
+    const content = t('customize.templateSaved', { counter: counterText(t, type) });
+    await interaction.editReply(t('common.done'));
+    await interaction.followUp({ content: `${content}\n-# ${t('common.requestedBy', { user: interaction.user.username })}` });
     return;
   }
   // Empty submission resets to the platform default.
   await setCounterTemplate(row.id, null);
-  await interaction.editReply(t('customize.templateReset', { counter: counterText(t, type) }));
+  const resetContent = t('customize.templateReset', { counter: counterText(t, type) });
+  await interaction.editReply(t('common.done'));
+  await interaction.followUp({ content: `${resetContent}\n-# ${t('common.requestedBy', { user: interaction.user.username })}` });
 }

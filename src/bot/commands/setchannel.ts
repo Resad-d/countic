@@ -88,6 +88,8 @@ export const setChannel: CommandDef = {
       return;
     }
     await updatePanelSource(panelRow.id, resolved.sourceId, resolved.sourceName);
-    await interaction.editReply(ctx.t('setchannel.success', { source: resolved.sourceName }));
+    const content = ctx.t('setchannel.success', { source: resolved.sourceName });
+    await interaction.editReply(ctx.t('common.done'));
+    await interaction.followUp({ content: `${content}\n-# ${ctx.t('common.requestedBy', { user: interaction.user.username })}` });
   },
 };

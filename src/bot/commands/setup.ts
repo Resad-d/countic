@@ -52,13 +52,6 @@ function stashPending(guildId: string, entry: PreparedPanel & { userId: string }
   pending.set(guildId, { ...entry, expires: now + 30_000 });
 }
 
-// The deferred reply is public so panel changes are visible, problems stay ephemeral.
-// deleteReply clears the public thinking placeholder the defer created.
-async function failEphemeral(interaction: ChatInputCommandInteraction, text: string): Promise<void> {
-  await interaction.followUp({ content: text, flags: MessageFlags.Ephemeral });
-  await interaction.deleteReply().catch(() => {});
-}
-
 export function resolveFailureMessage(
   t: Translator,
   source: string,
@@ -119,15 +112,17 @@ async function buildPanel(
     await interaction.editReply({ content: t('setup.failed'), components: [] });
     return;
   }
-  await interaction.editReply({
-    content: `${t('setup.created', { source: prepared.sourceName })}${extraNote ? `\n${extraNote}` : ''}`,
-    embeds: [
-      new EmbedBuilder().addFields(
-        { name: t('panel.statusSource'), value: `\`${prepared.sourceName}\`` },
-        { name: t('setup.counters'), value: created.map((counter) => `\`${counter.name}\``).join('\n') },
-      ),
-    ],
-    components: [],
+  const content = `${t('setup.created', { source: prepared.sourceName })}${extraNote ? `\n${extraNote}` : ''}`;
+  const embeds = [
+    new EmbedBuilder().addFields(
+      { name: t('panel.statusSource'), value: `\`${prepared.sourceName}\`` },
+      { name: t('setup.counters'), value: created.map((counter) => `\`${counter.name}\``).join('\n') },
+    ),
+  ];
+  await interaction.editReply({ content: t('common.done'), components: [] });
+  await interaction.followUp({
+    content: `${content}\n-# ${t('common.requestedBy', { user: interaction.user.username })}`,
+    embeds,
   });
 }
 
@@ -169,12 +164,12 @@ export const setup: CommandDef = {
     },
   ],
   async execute(interaction, ctx) {
-    // Public defer so the created panel announcement is visible, problems stay ephemeral.
-    await interaction.deferReply();
+    // Private acks for the runner, mutations announce publicly with requested-by.
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const guild = interaction.guild;
     const guildId = interaction.guildId;
     if (!guild || !guildId) {
-      await failEphemeral(interaction, ctx.t('common.error'));
+      await interaction.editReply(ctx.t('common.error'));
       return;
     }
     const platform = interaction.options.getString('platform', true) as Platform;
@@ -182,21 +177,21 @@ export const setup: CommandDef = {
     const label = ctx.t(`platform.${platform}`);
     const provider = ctx.providers[platform];
     if (!provider) {
-      await failEphemeral(interaction, ctx.t('setup.missingProvider', { platform: label }));
+      await interaction.editReply(ctx.t('setup.missingProvider', { platform: label }));
       return;
     }
     const classified = classify(platform, input);
     if (!classified) {
-      await failEphemeral(interaction, ctx.t('setup.invalidSource', { source: input, platform: label }));
+      await interaction.editReply(ctx.t('setup.invalidSource', { source: input, platform: label }));
       return;
     }
     if (!(await resolutionAllowed(guildId))) {
-      await failEphemeral(interaction, ctx.t('common.resolutionCap', { limit: config.RESOLUTION_DAILY_PER_GUILD }));
+      await interaction.editReply(ctx.t('common.resolutionCap', { limit: config.RESOLUTION_DAILY_PER_GUILD }));
       return;
     }
     // Only youtube draws from the quota meter, twitch and kick are free.
     if (platform === 'youtube' && !(await spend('channels_list', 'resolution', 1))) {
-      await failEphemeral(interaction, ctx.t('common.quotaExhausted'));
+      await interaction.editReply(ctx.t('common.quotaExhausted'));
       return;
     }
     let resolved: ResolveResult;
@@ -205,13 +200,13 @@ export const setup: CommandDef = {
     } catch (err) {
       // Source failures throw, input misses come back as values.
       if (err instanceof PlatformError) {
-        await failEphemeral(interaction, resolveFailureMessage(ctx.t, input, platform, err.failure));
+        await interaction.editReply(resolveFailureMessage(ctx.t, input, platform, err.failure));
         return;
       }
       throw err;
     }
     if ('failure' in resolved) {
-      await failEphemeral(interaction, resolveFailureMessage(ctx.t, input, platform, resolved.failure));
+      await interaction.editReply(resolveFailureMessage(ctx.t, input, platform, resolved.failure));
       return;
     }
     const existing = await selectPanel(guildId, platform);
@@ -221,7 +216,7 @@ export const setup: CommandDef = {
         existing.sourceId === resolved.sourceId &&
         oldCounters.every((counter) => guild.channels.cache.has(counter.channelId))
       ) {
-        await failEphemeral(interaction, ctx.t('setup.alreadyTracked'));
+        await interaction.editReply(ctx.t('setup.alreadyTracked'));
         return;
       }
       stashPending(guildId, {
