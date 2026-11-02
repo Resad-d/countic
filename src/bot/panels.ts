@@ -1,4 +1,10 @@
-import { ChannelType, PermissionFlagsBits, type Guild } from 'discord.js';
+import {
+  ChannelType,
+  DiscordAPIError,
+  PermissionFlagsBits,
+  RESTJSONErrorCodes,
+  type Guild,
+} from 'discord.js';
 import { deletePanelRows, selectCountersWithReasons, type PanelRow } from '../db/queries.js';
 import { counterName } from '../lib/counters/names.js';
 import type { Platform } from '../lib/counters/platform-types.js';
@@ -54,6 +60,9 @@ export async function deleteChannelsBestEffort(guild: Guild, channelIds: string[
         await channel.delete();
       }
     } catch (err) {
+      if (err instanceof DiscordAPIError && Number(err.code) === RESTJSONErrorCodes.UnknownChannel) {
+        continue;
+      }
       log.warn({ err, channelId: id }, 'channel delete failed');
       failed++;
     }
