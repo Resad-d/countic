@@ -159,7 +159,7 @@ export const setup: CommandDef = {
     )
     .setContexts(InteractionContextType.Guild),
   descKey: 'cmd.setup.desc',
-  cooldownSeconds: 30,
+  cooldownSeconds: 15,
   requiredPerm: PermissionFlagsBits.ManageChannels,
   buttons: [
     {

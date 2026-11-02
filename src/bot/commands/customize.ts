@@ -97,7 +97,7 @@ export const customize: CommandDef = {
     )
     .setContexts(InteractionContextType.Guild),
   descKey: 'cmd.customize.desc',
-  cooldownSeconds: 30,
+  cooldownSeconds: 15,
   requiredPerm: PermissionFlagsBits.ManageChannels,
   modals: [
     {

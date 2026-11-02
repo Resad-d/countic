@@ -36,7 +36,7 @@ export const setChannel: CommandDef = {
     )
     .setContexts(InteractionContextType.Guild),
   descKey: 'cmd.setchannel.desc',
-  cooldownSeconds: 30,
+  cooldownSeconds: 15,
   requiredPerm: PermissionFlagsBits.ManageChannels,
   async execute(interaction, ctx) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });

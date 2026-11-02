@@ -194,7 +194,7 @@ export const panel: CommandDef = {
     )
     .setContexts(InteractionContextType.Guild),
   descKey: 'cmd.panel.desc',
-  cooldownSeconds: 30,
+  cooldownSeconds: 15,
   requiredPerm: PermissionFlagsBits.ManageChannels,
   buttons: [
     {
