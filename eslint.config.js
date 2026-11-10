@@ -3,7 +3,7 @@ import tseslint from 'typescript-eslint';
 
 export default [
   {
-    ignores: ['dist/', 'node_modules/', 'drizzle/'],
+    ignores: ['dist/', 'node_modules/', 'drizzle/', 'website/'],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,

@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+  <%- include('partials/head', {
+    title: 'FAQs - Countic',
+    description: 'How Countic updates counters, languages, categories and troubleshooting for YouTube, Twitch and Kick panels.',
+    canonicalPath: '/faqs',
+  }); %>
+</head>
+
+<body id="top" class="d-flex flex-column min-vh-100">
+
+  <%- include('partials/header', { active: 'faqs' }); %>
+
+  <main class="container my-5">
+    <%
+      const supportLink = '<a href="https://discord.gg/kKRnpfR" target="_blank" rel="noopener noreferrer" class="text-decoration-none fw-bold text-primary-emphasis border-bottom">Support Server</a>';
+    %>
+    <h1 class="text-center mb-4">Frequently Asked Questions</h1>
+    <p class="lead text-center">Answers to the most common questions about Countic. Anything missing? Ask in the
+      <%- supportLink %>.</p>
+
+    <%
+      const faqItems = [
+        {
+          question: 'How often do counters update?',
+          answer: `YouTube counters refresh every hour, Twitch and Kick counters every 15 minutes. Updates run on a fixed
+            schedule, nobody has to type anything to trigger them.`,
+        },
+        {
+          question: 'Does the bot read our messages?',
+          answer: `No. Countic has no access to messages, its Discord intents do not include them. Updates are
+            driven by a timer, not by activity.`,
+        },
+        {
+          question: 'Why is YouTube slower than Twitch and Kick?',
+          answer: `YouTube limits its API with a daily quota. Countic batches many channels into a single request to use as
+            little quota as possible, which makes one update per hour per panel sustainable for thousands of servers.
+            Twitch and Kick APIs have no such quota, so they update every 15 minutes.`,
+        },
+        {
+          question: 'How do I rename the category?',
+          answer: `Run <code>/customize template</code> and pick the category counter. Use <code>[name]</code> for the tracked
+            channel's name and write the rest as plain text, for example <code>[name] • My Community</code>. The default
+            template shows the channel name followed by the platform, like <code>[name] • YouTube</code>.`,
+        },
+        {
+          question: 'Can I change the language?',
+          answer: `There is nothing to configure. Replies follow each member's own Discord client language, currently English
+            and Turkish. Counter numbers follow the server language setting, so a Turkish server gets
+            <code>1,23M</code> while an English server gets <code>1.23M</code>.`,
+        },
+        {
+          question: 'Can I track multiple channels?',
+          answer: `One panel per platform per server, which means a YouTube, a Twitch and a Kick panel can run side by side,
+            each following its own channel.`,
+        },
+        {
+          question: 'A counter stopped updating, what now?',
+          answer: `Run <code>/panel status</code>. Every counter is listed with its state and the reason if it stopped, for
+            example missing permissions or a deleted channel. Fix the cause and run <code>/setup</code> again to recreate
+            the panel, your counter templates are kept.`,
+        },
+        {
+          question: 'How do I remove Countic from my server?',
+          answer: `Run <code>/panel delete</code>, which removes the category, its counter channels and the stored settings.
+            If you remove the bot without deleting the panel first, the counters stay as ordinary voice channels you can
+            delete by hand. Stored settings are purged automatically within 7 days.`,
+        },
+      ];
+    %>
+    <div class="accordion col-lg-8 mx-auto" id="faqAccordion">
+      <% faqItems.forEach((item, index) => {
+        const open = index === 0;
+        const id = `collapse${index + 1}`;
+        const headingId = `heading${index + 1}`;
+      %>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="<%= headingId %>">
+          <button class="accordion-button<%= open ? '' : ' collapsed' %>" type="button" data-bs-toggle="collapse" data-bs-target="#<%= id %>" aria-expanded="<%= open %>" aria-controls="<%= id %>">
+            <%= item.question %>
+          </button>
+        </h2>
+        <div id="<%= id %>" class="accordion-collapse collapse<%= open ? ' show' : '' %>" aria-labelledby="<%= headingId %>" data-bs-parent="#faqAccordion">
+          <div class="accordion-body">
+            <%- item.answer %>
+          </div>
+        </div>
+      </div>
+      <% }); %>
+    </div>
+
+    <p class="mt-4 text-center">
+      Still have questions? Join the <%- supportLink %> and ask.
+    </p>
+  </main>
+
+  <%- include('partials/footer'); %>
+</body>
+
+</html>

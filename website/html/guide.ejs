@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+  <%- include('partials/head', {
+    title: 'Guides - Countic',
+    description: 'Set up YouTube, Twitch or Kick counters in Discord voice channels with Countic. One command builds a live stats panel.',
+    canonicalPath: '/guide',
+  }); %>
+</head>
+
+<body id="top" class="d-flex flex-column min-vh-100">
+
+  <%- include('partials/header', { active: 'guide' }); %>
+
+  <main class="container my-5">
+    <%
+      const platforms = [
+        {
+          id: 'youtube',
+          name: 'YouTube',
+          icon: '/img/youtube.webp',
+          intro: 'Run <code>/setup</code>, pick <strong>youtube</strong> as the platform and paste your channel in the channel option. A URL, an @handle or the bare <code>UC...</code> channel ID all work, for example <code>youtube.com/@yourchannel</code> or <code>@yourchannel</code>.',
+          example: '/setup platform:youtube channel:https://www.youtube.com/@yourchannel',
+          counters: [
+            'the category <code>[name] • YouTube</code>, named after the tracked channel',
+            '<code>Subs: [subs]</code> with the live subscriber count',
+            '<code>Views: [views]</code> with the total view count',
+            '<code>Videos: [videos]</code> with the total video count',
+          ],
+          after: 'All three counters refresh every hour on a fixed schedule. YouTube reports abbreviated subscriber counts, Countic renders them exactly as YouTube provides them.',
+        },
+        {
+          id: 'twitch',
+          name: 'Twitch',
+          icon: '/img/twitch.webp',
+          intro: 'Run <code>/setup</code>, pick <strong>twitch</strong> as the platform and enter the Twitch account in the channel option. The username works, and so do a <code>twitch.tv/yourusername</code> link or <code>@yourusername</code>. Twitch usernames are 3 to 25 letters, numbers and underscores.',
+          example: '/setup platform:twitch channel:yourusername',
+          counters: [
+            'the category <code>[name] • Twitch</code>, named after the tracked account',
+            '<code>Followers: [followers]</code> with the follower count',
+            '<code>Viewers: [viewers]</code> with the current viewer count',
+          ],
+          after: 'Both counters refresh every 15 minutes, so viewer counts stay close to live. While the stream is offline the viewers counter shows <strong>Offline</strong> and the followers counter keeps counting.',
+        },
+        {
+          id: 'kick',
+          name: 'Kick',
+          icon: '/img/kick.png',
+          intro: 'Run <code>/setup</code>, pick <strong>kick</strong> as the platform and enter the Kick account in the channel option. The username works, and so do a <code>kick.com/yourusername</code> link or <code>@yourusername</code>. Kick usernames are 2 to 25 letters, numbers and underscores.',
+          example: '/setup platform:kick channel:yourusername',
+          counters: [
+            'the category <code>[name] • Kick</code>, named after the tracked account',
+            '<code>Followers: [followers]</code> with the follower count',
+            '<code>Viewers: [viewers]</code> with the current viewer count',
+          ],
+          after: 'Both counters refresh every 15 minutes. While the stream is offline the viewers counter shows <strong>Offline</strong> and the followers counter keeps counting.',
+        },
+      ];
+      const selected = platforms.find((entry) => entry.id === platformId) ?? platforms[0];
+    %>
+
+    <h1 class="text-center mb-4">Guides</h1>
+    <p class="lead text-center">Live stats as voice channels in your server, one command per platform. Pick
+      yours below.</p>
+
+    <section class="my-4">
+      <h2>Step 1 - Invite the Bot</h2>
+      <p><a href="/add" class="text-decoration-none fw-bold text-primary-emphasis border-bottom">Invite Countic</a> to your server and keep the
+        <strong>Manage Channels</strong> permission enabled for it. That is the only permission Countic needs,
+        it creates, renames and deletes voice channels. Managing the panel
+        later needs the same permission for you.</p>
+    </section>
+
+    <hr>
+
+    <ul class="nav nav-pills justify-content-center gap-2 my-4" role="tablist" aria-label="Pick a platform">
+      <% platforms.forEach((entry) => { %>
+      <li class="nav-item" role="presentation">
+        <button
+          id="tab-<%= entry.id %>"
+          class="nav-link pill-<%= entry.id %><%= entry.id === selected.id ? ' active' : '' %>"
+          type="button"
+          role="tab"
+          data-bs-toggle="tab"
+          data-bs-target="#pane-<%= entry.id %>"
+          aria-selected="<%= entry.id === selected.id %>"
+          aria-controls="pane-<%= entry.id %>"
+        >
+          <img src="<%= entry.icon %>" width="20" height="20" alt="" class="me-2">
+          <%= entry.name %>
+        </button>
+      </li>
+      <% }); %>
+    </ul>
+
+    <div class="tab-content">
+      <% platforms.forEach((entry) => { %>
+      <div
+        class="tab-pane fade<%= entry.id === selected.id ? ' show active' : '' %>"
+        id="pane-<%= entry.id %>"
+        role="tabpanel"
+        aria-labelledby="tab-<%= entry.id %>"
+        tabindex="0"
+      >
+        <h2 class="h4">Step 2 - Run /setup</h2>
+        <p><%- entry.intro %></p>
+        <pre class="bg-dark text-white p-3 rounded border"><%= entry.example %></pre>
+        <p>Countic creates:</p>
+        <ul>
+          <% entry.counters.forEach((counter) => { %>
+          <li><%- counter %></li>
+          <% }); %>
+        </ul>
+        <p>Fresh counters start as <code>...</code> and fill with real numbers on the first update pass, usually
+          within a couple of minutes. <%- entry.after %></p>
+      </div>
+      <% }); %>
+    </div>
+
+    <hr>
+
+    <section class="my-4">
+      <h2>Step 3 - Manage Your Panel</h2>
+      <ul>
+        <li><code>/set-channel</code> points the panel at a different source. The counters keep their names and
+          formats and pick up the new source on the next update pass, usually within a couple of minutes.</li>
+        <li><code>/panel status</code> shows every counter with its current name, its state and the last update.
+          Without a platform it summarizes all panels at once, and a counter that stopped working carries the
+          recorded reason, like a deleted channel or missing permissions.</li>
+        <li><code>/panel delete</code> removes a panel after a confirmation, deleting the category, the counter
+          channels and the stored settings. With the optional counter option it removes a single counter
+          instead.</li>
+      </ul>
+    </section>
+
+    <hr>
+
+    <section class="my-4">
+      <h2>Step 4 - Customize the Names</h2>
+      <p>Run <code>/customize template</code>, pick a counter and edit the template in the dialog, prefilled
+        with the current name. Every stat counter must contain its own placeholder, <code>[subs]</code>,
+        <code>[views]</code>, <code>[videos]</code>, <code>[followers]</code> or <code>[viewers]</code>,
+        surrounded by whatever text you like. Example template: <code>Subs: [subs]</code>. Leaving the dialog
+        empty resets the counter to its default name.</p>
+      <p>The category is named with <code>[name]</code> plus plain text, like <code>[name] • My Community</code>.
+        Because <code>[name]</code> is required, the tracked channel's name always stays part of the category.
+        If you want a category name without the channel name, create your own category in Discord and drag the
+        counter channels into it, Countic keeps renaming them wherever they sit. Be careful with permissions
+        while moving things: if the bot loses access to a counter, it can no longer rename it and the counter
+        stops updating.</p>
+      <p><code>/customize format</code> switches a counter between compact (<code>1.23M</code>) and full
+        (<code>1,230,000</code>) numbers. Subscriber and follower counters start compact, the rest starts full,
+        and the separators follow the language set in your Discord server settings, so a Turkish server sees
+        <code>1,23M</code> where an English server sees <code>1.23M</code>.</p>
+      <p><code>/customize view</code> lists every counter of a panel with its template, a rendered preview and
+        any recorded problem.</p>
+    </section>
+
+    <hr>
+
+    <section class="my-4">
+      <h2>Troubleshooting</h2>
+      <ul>
+        <li><strong>Source not found?</strong> Use the exact username or paste the full channel URL, links and
+          handles resolve.</li>
+        <li><strong>Counters not updating?</strong> Run <code>/panel status</code>, it names the reason per
+          counter. Fix the cause and run <code>/setup</code> again, your templates are kept.</li>
+      </ul>
+    </section>
+
+  </main>
+
+  <%- include('partials/footer'); %>
+</body>
+
+</html>

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+  <%- include('partials/head', {
+    title: 'Terms of Service - Countic',
+    description: 'Terms for using the Countic Discord bot and website.',
+    canonicalPath: '/tos',
+  }); %>
+</head>
+
+<body id="top" class="d-flex flex-column min-vh-100">
+
+  <%- include('partials/header', { active: '' }); %>
+
+  <main class="container my-5">
+    <div class="col-lg-8 mx-auto">
+      <h1 class="text-center mb-2">Terms of Service</h1>
+      <p class="text-center text-white-50 mb-4">Effective from: November 2026</p>
+
+      <p class="lead">"We", "us" and "our" refer to the team behind Countic. "Service" covers the Countic Discord bot
+        and this website. By using the service you agree to these terms.</p>
+
+      <section class="my-4">
+        <h2>About the Service</h2>
+        <p>Countic is a Discord bot that displays YouTube, Twitch and Kick statistics in voice channel and category
+          names, managed through slash commands and this website.</p>
+      </section>
+
+      <hr>
+
+      <section class="my-4">
+        <h2>Rules of Conduct</h2>
+        <ul>
+          <li>The service is provided "as is" and may be used only for its intended purpose.</li>
+          <li>You may not use the service to break Discord's Terms of Service or the terms of the tracked platforms.</li>
+          <li>You may not attempt to abuse, overload or circumvent the service, its quotas or its rate limits.</li>
+          <li>You must meet the minimum age requirements Discord sets for your country.</li>
+        </ul>
+      </section>
+
+      <hr>
+
+      <section class="my-4">
+        <h2>Availability</h2>
+        <p>The service depends on Discord and third-party platform APIs. Updates may be delayed or paused when those
+          platforms are unavailable or change their APIs. No guarantee of uninterrupted availability is given.</p>
+        <p>Statistics come from the public APIs of the tracked platforms. Kick follower counts come from a public
+          third-party statistics service, because Kick's own API does not provide them. Where a platform rounds its
+          own numbers, Countic displays them as reported. No guarantee of accuracy or completeness is given.</p>
+      </section>
+
+      <hr>
+
+      <section class="my-4">
+        <h2>Intellectual Property</h2>
+        <p>Content and materials owned by us may not be used without permission. Platform names and trademarks belong
+          to their respective owners. Countic is not affiliated with, associated with or endorsed by YouTube, Google,
+          Twitch, Amazon or Kick.</p>
+      </section>
+
+      <hr>
+
+      <section class="my-4">
+        <h2>Termination</h2>
+        <p>We may restrict or terminate access to the service for violations of these terms, with notice where contact
+          is possible. We may also discontinue the service entirely.</p>
+      </section>
+
+      <hr>
+
+      <section class="my-4">
+        <h2>Changes to These Terms</h2>
+        <p>Terms may change at any time. The effective date at the top of this page always reflects the current
+          version.</p>
+      </section>
+
+      <hr>
+
+      <section class="my-4">
+        <h2>Contact Us</h2>
+        <p>Questions or disputes go through the
+          <a href="https://discord.gg/kKRnpfR" target="_blank" rel="noopener noreferrer"
+            class="text-decoration-none fw-bold text-primary-emphasis border-bottom">support server</a>.</p>
+      </section>
+    </div>
+  </main>
+
+  <%- include('partials/footer'); %>
+</body>
+
+</html>

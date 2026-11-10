@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+  <%- include('partials/head', {
+    title: 'About - Countic',
+    description: 'The story behind Countic, a Discord bot that shows YouTube, Twitch and Kick stats in voice channels.',
+    canonicalPath: '/about',
+  }); %>
+</head>
+
+<body id="top" class="d-flex flex-column min-vh-100">
+
+  <%- include('partials/header', { active: 'about' }); %>
+
+  <main class="px-3">
+    <div class="container col-xl-10 col-xxl-8 px-3 py-3">
+      <div class="row align-items-center g-lg-5 pt-4" data-reveal data-reveal-delay="100">
+        <div class="col-lg-7 text-center text-lg-start">
+          <h1 class="display-4 fw-bold lh-1 mb-3">About Countic</h1>
+          <p class="col-lg-10 fs-4">
+            Hey, I'm <strong><a class="text-decoration-none text-white" href="https://github.com/Resad-d">@Resad</a></strong>.
+            I built Countic because I couldn't find a bot that showed YouTube stats in Discord the way I wanted,
+            so I wrote my own. It now tracks YouTube, Twitch and Kick for thousands of servers.
+          </p>
+        </div>
+        <div class="col-md-10 mx-auto col-lg-5">
+          <img src="/img/snowball.webp" width="466" height="466" alt="Resad, developer of Countic" class="rounded-circle d-block mx-auto img-fluid shadow">
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="col-lg-8 mx-auto">
+        <section class="my-5 text-center" data-reveal>
+          <p>
+            Countic started as a small side project I built for myself, back when it was called YouTube Stats. It
+            slowly grew into something thousands of servers use, and in <strong>2026</strong> I rewrote it from
+            scratch, TypeScript, PostgreSQL, Docker, same idea, rebuilt properly. I still build it in my spare time,
+            alongside other things I enjoy making. The whole codebase is
+            <a href="https://github.com/Resad-d/countic" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-primary-emphasis fw-bold border-bottom">open source</a>,
+            and contributions are welcome.
+          </p>
+          <p>
+            The bot outgrew free hosting a long time ago and now runs on a paid server. If you want to help with that,
+            there is a
+            <a href="https://www.patreon.com/c/user?u=84322514" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-primary-emphasis fw-bold border-bottom">Patreon</a> page you can visit.
+          </p>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <%- include('partials/footer'); %>
+</body>
+
+</html>

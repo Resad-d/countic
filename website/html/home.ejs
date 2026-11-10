@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+  <%- include('partials/head', {
+    title: 'Countic - Show YouTube, Twitch and Kick stats in Discord',
+    description: 'Countic displays YouTube subscribers, Twitch followers and Kick stats as live Discord voice channels. Set up a panel in minutes with /setup.',
+    canonicalPath: '/',
+  }); %>
+</head>
+
+<body id="top" class="d-flex flex-column min-vh-100">
+
+  <%- include('partials/header', { active: 'home' }); %>
+
+  <main>
+
+    <section class="text-center text-light d-flex flex-column justify-content-center align-items-center intro">
+      <div class="hero-inner">
+        <h1 class="fw-bold mb-3" data-reveal>Track YouTube, Twitch and Kick Stats Directly in Discord</h1>
+        <p class="lead mb-4" data-reveal data-reveal-delay="100">Live counters as voice channels in your server. Set up in minutes with one command, or through the dashboard.</p>
+
+        <div class="d-flex justify-content-center gap-4 mb-4" data-reveal data-reveal-delay="200">
+          <img src="/img/youtube.webp" width="50" height="50" alt="YouTube">
+          <img src="/img/twitch.webp" width="50" height="50" alt="Twitch">
+          <img src="/img/kick.png" width="50" height="50" alt="Kick">
+        </div>
+
+        <div class="d-flex flex-wrap justify-content-center gap-3" data-reveal data-reveal-delay="400">
+          <a href="/dashboard" class="btn btn-lg fw-bold btn-soft px-4 py-2">Open Dashboard</a>
+          <a href="/add" target="_blank" rel="noopener noreferrer" class="btn btn-lg fw-bold btn-discord px-4 py-2">Add to Discord</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="pb-5">
+      <div class="d-flex justify-content-center" data-reveal>
+        <video class="hero-loop shadow" width="378" height="180" poster="/img/youtube-panel.webp" autoplay muted loop playsinline aria-label="Countic counters updating in Discord for YouTube, Twitch and Kick panels">
+          <source src="/img/hero-loop.webm" type="video/webm">
+          <source src="/img/hero-loop.mp4" type="video/mp4">
+        </video>
+        <img src="/img/youtube-panel.webp" width="378" height="180" alt="Countic counters for a YouTube panel" class="hero-loop hero-poster shadow">
+      </div>
+    </section>
+
+    <section class="py-5 text-light" data-reveal>
+      <div class="container">
+        <h2 class="text-center fw-bold mb-5">How It Works</h2>
+        <div class="row text-center g-4">
+          <div class="col-md-4">
+            <div class="p-4 rounded h-100 bg-dark feature-card">
+              <h5 class="fw-bold">1. Invite the Bot</h5>
+              <p>Click <strong>Add to Discord</strong> and give it the Manage Channels permission.</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="p-4 rounded h-100 bg-dark feature-card">
+              <h5 class="fw-bold">2. Run /setup</h5>
+              <p>Paste a channel link or @handle. Countic creates a category with counter voice channels for you.</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="p-4 rounded h-100 bg-dark feature-card">
+              <h5 class="fw-bold">3. Watch Them Update</h5>
+              <p>All of the statistics refresh automatically, right in the channel names.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-5">
+      <div class="container">
+        <h2 class="text-center fw-bold mb-5">Core Features</h2>
+        <div class="row align-items-center mb-5">
+          <div class="col-md-6">
+            <img src="/img/setup-command.webp" width="960" height="491" alt="Discord /setup creating a YouTube panel for PewDiePie" loading="lazy" class="img-fluid rounded shadow">
+          </div>
+          <div class="col-md-6">
+            <h3 class="fw-bold">Set Up in One Command</h3>
+            <p class="lead">Run /setup with a channel link or @handle. Countic creates the category and counter channels. First values appear within a minute.</p>
+          </div>
+        </div>
+
+        <div class="row align-items-center mb-5 flex-md-row-reverse">
+          <div class="col-md-6">
+            <img src="/img/customize-template.webp" width="599" height="432" alt="Customize dialog with a prefilled Subs name template" loading="lazy" class="img-fluid rounded shadow feature-shot">
+          </div>
+          <div class="col-md-6">
+            <h3 class="fw-bold">Name Counters Your Way</h3>
+            <p class="lead">Templates like <code>My Subscribers: [subs]</code> for every counter, the category included. Pick compact (1.23M) or full (1,230,000) numbers per counter.</p>
+          </div>
+        </div>
+
+        <div class="row align-items-center mb-5">
+          <div class="col-md-6">
+            <img src="/img/panel-status.webp" width="984" height="309" alt="Panel status embed listing YouTube, Twitch and Kick panels with their last update times" loading="lazy" class="img-fluid rounded shadow">
+          </div>
+          <div class="col-md-6">
+            <h3 class="fw-bold">Every Platform, Always Updating</h3>
+            <p class="lead">Run a YouTube, Twitch and Kick panel at the same time. YouTube counters refresh hourly and Twitch and Kick every 15 minutes. Check the <a href="/faqs" class="text-decoration-none fw-bold text-primary-emphasis border-bottom">FAQs</a> for more about the update system.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-5">
+      <div class="container">
+        <div class="bg-dark text-light text-center rounded p-5">
+          <h2 class="fw-bold">Ready to Show Your Stats?</h2>
+          <p class="lead">Invite Countic and run /setup in your server.</p>
+          <a href="/add" target="_blank" rel="noopener noreferrer" class="btn btn-lg btn-discord mt-3">Invite the Bot</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <%- include('partials/footer'); %>
+</body>
+
+</html>

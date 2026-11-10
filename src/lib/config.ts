@@ -17,6 +17,12 @@ const configSchema = z.object({
 
   WEB_PORT: z.coerce.number().int().min(1).max(65535).default(3000),
 
+  SITE_URL: z.url().default('https://countic.app'),
+  TRUST_PROXY: z.preprocess(
+    emptyToUndefined,
+    z.string().regex(/^(loopback|linklocal|uniquelocal|\d+|[0-9a-fA-F.,:/\s]+)$/),
+  ).optional(),
+
   METRICS_ENABLED: boolish,
   METRICS_PORT: z.coerce.number().int().min(1).max(65535).default(9101),
   BOT_METRICS_PORT: z.coerce.number().int().min(1).max(65535).default(9102),

@@ -1,0 +1,336 @@
+/* Base */
+/* Page swaps cross-fade in browsers with view transition support, everyone else navigates normally. */
+@view-transition {
+  navigation: auto;
+}
+
+body {
+  scroll-behavior: smooth;
+  text-shadow: 0 0.05rem 0.1rem rgba(0, 0, 0, 0.5);
+  box-shadow: inset 0 0 5rem rgba(0, 0, 0, 0.5);
+  background-image: linear-gradient(135deg, #111 0%, #1b1b1b 100%);
+}
+
+/* Theme */
+:root {
+  --countic-accent: #5865f2;
+  --countic-accent-dark: #4752c4;
+  --countic-accent-rgb: 88, 101, 242;
+}
+
+[data-bs-theme="dark"] {
+  --bs-body-bg: #17191b;
+  --bs-primary: var(--countic-accent);
+  --bs-primary-rgb: var(--countic-accent-rgb);
+  /* Dark theme renders every primary text through this variable. */
+  --bs-primary-text-emphasis: #fff;
+}
+
+::selection {
+  background-color: var(--countic-accent-dark);
+  color: #fff;
+}
+
+/* Scrollbar */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #3a3a3a transparent;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #3a3a3a;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #494949;
+}
+
+/* Buttons */
+.btn {
+  --bs-btn-border-radius: 0.5rem;
+  /* The body text shadow blurs button labels. */
+  text-shadow: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+/* Bootstrap derives hover, focus and press colors from these variables. */
+.btn-discord {
+  --bs-btn-color: #fff;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--countic-accent-dark);
+  --bs-btn-hover-border-color: var(--countic-accent-dark);
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--countic-accent-dark);
+  --bs-btn-active-border-color: var(--countic-accent-dark);
+  --bs-btn-focus-shadow-rgb: var(--countic-accent-rgb);
+  background-color: var(--countic-accent);
+  border-color: var(--countic-accent);
+  color: #fff;
+}
+
+.btn-soft {
+  --bs-btn-color: #fff;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: rgba(255, 255, 255, 0.12);
+  --bs-btn-hover-border-color: rgba(255, 255, 255, 0.3);
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: rgba(255, 255, 255, 0.12);
+  --bs-btn-active-border-color: rgba(255, 255, 255, 0.3);
+  --bs-btn-focus-shadow-rgb: 255, 255, 255;
+  background-color: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+
+/* Header */
+.site-header {
+  background-color: rgba(23, 25, 27, 0.8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  min-height: 4.5rem;
+}
+
+.brand-word {
+  position: relative;
+  top: -1px;
+}
+
+.site-nav .nav-link {
+  color: rgba(255, 255, 255, 0.6);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.site-nav .nav-link:hover,
+.site-nav .nav-link:focus {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.07);
+}
+
+.site-nav .active {
+  color: #fff;
+  background-color: rgba(var(--countic-accent-rgb), 0.25);
+}
+
+/* Home */
+.hero-inner {
+  max-width: 42em;
+}
+
+/* Hero Loop */
+.hero-loop {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.5rem;
+}
+
+/* Reduced motion swaps the video for this still frame. */
+.hero-poster {
+  display: none;
+}
+
+.intro {
+  min-height: 85vh;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Hero glow, the isolation on .intro lets negative z-index sit behind the text but above the page. */
+.intro::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: -12rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 64rem;
+  height: 36rem;
+  background: radial-gradient(closest-side, rgba(var(--countic-accent-rgb), 0.14), transparent);
+}
+
+.feature-card {
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.feature-shot {
+  display: block;
+  max-width: 26rem;
+  margin-inline: auto;
+}
+
+/* Rabbit Hole */
+.rabbithole-wrapper {
+  cursor: help;
+  display: inline-block;
+  perspective: 600px;
+}
+
+.rabbithole {
+  display: inline-block;
+  transform-style: preserve-3d;
+}
+
+.rabbithole-wrapper:hover .rabbithole {
+  animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotateY(0deg);
+  }
+
+  100% {
+    transform: rotateY(360deg);
+  }
+}
+
+/* Dropdown */
+.dropdown-item {
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  border-radius: 6px;
+  padding: 12px 16px;
+}
+
+.dropdown-item:hover {
+  transform: translateY(-1px);
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Footer */
+footer .nav-link {
+  opacity: 0.8;
+  transition: opacity 0.15s ease;
+}
+
+footer .nav-link:hover {
+  opacity: 1;
+}
+
+/* Accent Links */
+/* Bootstrap ships border utilities with !important, matching it is the only way to recolor the underline. */
+.text-primary.border-bottom,
+.text-primary-emphasis.border-bottom {
+  border-bottom: 2px solid rgba(var(--countic-accent-rgb), 0.55) !important;
+  transition: opacity 0.15s ease, border-bottom-color 0.15s ease;
+}
+
+.text-primary.border-bottom:hover,
+.text-primary-emphasis.border-bottom:hover {
+  opacity: 0.8;
+  border-bottom-color: var(--countic-accent) !important;
+}
+
+/* Platform Pills */
+.nav-pills .nav-link {
+  display: inline-flex;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.75);
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.nav-pills .nav-link:hover {
+  color: #fff;
+}
+
+.nav-pills .pill-youtube.active {
+  background-color: #cc0000;
+  border-color: #cc0000;
+}
+
+.nav-pills .pill-twitch.active {
+  background-color: #9146ff;
+  border-color: #9146ff;
+}
+
+.nav-pills .pill-kick.active {
+  background-color: #15803d;
+  border-color: #15803d;
+  color: #fff;
+}
+
+/* Images */
+img {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+.icon-sprite {
+  /* Only defines <symbol> icons for the footer, nothing visible on its own. */
+  display: none;
+}
+
+/* Reveal */
+/* animations.js flips these to .revealed with an IntersectionObserver on scroll. */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+}
+
+[data-reveal].revealed {
+  opacity: 1;
+  transform: none;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .dropdown-item {
+    transition: none;
+  }
+
+  .site-nav .nav-link {
+    transition: none;
+  }
+
+  .feature-card {
+    transition: none;
+  }
+
+  .hero-loop {
+    display: none;
+  }
+
+  .hero-poster {
+    display: block;
+  }
+
+  footer .nav-link {
+    transition: none;
+  }
+
+  .text-primary.border-bottom,
+  .text-primary-emphasis.border-bottom {
+    transition: none;
+  }
+}

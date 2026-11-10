@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+  <%- include('partials/head', {
+    title: 'Commands - Countic',
+    description: 'All Countic commands for Discord.',
+    canonicalPath: '/commands',
+  }); %>
+</head>
+
+<body id="top" class="d-flex flex-column min-vh-100">
+
+  <%- include('partials/header', { active: 'commands' }); %>
+
+  <main class="container my-5">
+    <div class="col-lg-8 mx-auto">
+      <h1 class="text-center mb-4">Commands</h1>
+      <p class="lead text-center">Countic is configured with slash commands. Run <code>/help</code> in Discord any time, this page documents the same commands in more detail.</p>
+
+      <section class="my-4">
+        <h2>How panels work</h2>
+        <p><code>/setup</code> builds a panel for one platform: a channel category with one voice channel per stat, named after live numbers like <code>Subs: 1.23M</code>. A server runs one panel per platform, so YouTube, Twitch and Kick can work side by side.</p>
+        <ul>
+          <li><strong>YouTube</strong> counters: subscribers, total views, total videos. Refreshed every hour.</li>
+          <li><strong>Twitch</strong> counters: followers, live viewers. Refreshed every 15 minutes.</li>
+          <li><strong>Kick</strong> counters: followers, live viewers. Refreshed every 15 minutes.</li>
+        </ul>
+        <p>Fresh counters start as <code>...</code> and fill with real numbers on the first update pass, usually within a couple of minutes. Twitch and Kick viewer counters show <strong>Offline</strong> while the stream is not live, every other counter keeps updating.</p>
+      </section>
+
+      <hr>
+
+      <section class="my-4">
+        <h2>/setup</h2>
+        <p>Builds a complete panel for one platform: a category with counter voice channels, filled with live numbers.</p>
+        <ul>
+          <li><strong>platform:</strong> <code>youtube</code>, <code>twitch</code> or <code>kick</code>.</li>
+          <li><strong>channel:</strong> the channel to track. YouTube accepts a channel URL, an @handle or a channel ID. Twitch and Kick accept the username, a profile link or @name.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre class="bg-dark text-white p-3 rounded border">/setup platform:youtube channel:https://www.youtube.com/@yourchannel</pre>
+        <p>The panel starts with default names. The category is <code>[name] • Platform</code>, the counters are <code>Subs: [subs]</code>, <code>Views: [views]</code> and <code>Videos: [videos]</code> for YouTube and <code>Followers: [followers]</code> plus <code>Viewers: [viewers]</code> for Twitch and Kick. Everything is editable with <code>/customize</code>.</p>
+        <p>If a panel for that platform already exists, the bot shows a private confirmation before replacing it. Your counter templates and number formats carry over to the new source. Requires the <strong>Manage Channels</strong> permission.</p>
+      </section>
+
+      <hr>
+
+      <section class="my-4">
+        <h2>/set-channel</h2>
+        <p>Points an existing panel at a different channel without recreating the counters.</p>
+        <pre class="bg-dark text-white p-3 rounded border">/set-channel platform:twitch channel:yourusername</pre>
+        <p>The counters keep their templates and formats and pick up the new source on the next update pass, usually within a couple of minutes. The change is announced in the channel with your name. Requires the <strong>Manage Channels</strong> permission.</p>
+      </section>
+
+      <hr>
+
+      <section class="my-4">
+        <h2>/panel</h2>
+        <ul>
+          <li><strong>status</strong> shows the current panel. Without a platform it shows every panel. With a platform it lists every counter with its rendered name, its state and the last update, plus the recorded reason if something stopped working.</li>
+          <li><strong>delete</strong> removes a panel. Asks for confirmation, then deletes the category, the counter channels and the stored settings. With the optional <strong>counter</strong> option it removes a single counter instead, the category cannot be deleted on its own.</li>
+        </ul>
+        <pre class="bg-dark text-white p-3 rounded border">/panel status platform:youtube</pre>
+      </section>
+
+      <hr>
+
+      <section class="my-4">
+        <h2>/customize</h2>
+        <p>Everything about how your counters look:</p>
+        <ul>
+          <li><strong>view</strong> lists every counter of a panel with its template, a rendered preview, its number format and any recorded problem.</li>
+          <li><strong>template</strong> edits a counter name in a dialog, prefilled with the current template. Leave it empty to reset to the default, the new name applies on the next update pass.</li>
+          <li><strong>format</strong> switches a counter between compact (<code>1.23M</code>) and full (<code>1,230,000</code>). Subscriber and follower counters start compact, view, video and viewer counters start full. The category has no numbers and no format.</li>
+        </ul>
+        <p><strong>Placeholders:</strong> every stat counter uses its own value: <code>[subs]</code> <code>[views]</code> <code>[videos]</code> <code>[followers]</code> <code>[viewers]</code>. The category uses <code>[name]</code>, the tracked channel's name, plus plain text.</p>
+        <p>The category template must contain <code>[name]</code>, so the tracked channel's name always stays part of the category. If you want a category name without the channel name, create your own category in Discord and drag the counter channels into it, Countic keeps renaming the counters wherever they sit. Be careful with permissions while moving things: if the bot loses access to a counter, it can no longer rename it and the counter stops updating.</p>
+        <p>Templates must stay within Discord's 100 character channel name limit, checked with sample numbers before saving.</p>
+        <pre class="bg-dark text-white p-3 rounded border">/customize template counter:subs</pre>
+        <p>Example template: <code>Subs: [subs]</code></p>
+      </section>
+
+      <hr>
+
+      <section class="my-4">
+        <h2>/help</h2>
+        <p>Shows every command with usage hints as a private reply, localized to your Discord client language (English or Turkish).</p>
+      </section>
+
+      <hr>
+
+      <section class="my-4">
+        <h2>Numbers and languages</h2>
+        <p>Counters have no language of their own, the numbers follow the language set in the Discord server settings. That choice decides the separators, so the same counter shows <code>1,230,000</code> on an English server and <code>1.230.000</code> on a Turkish server. Compact numbers follow the same rule, <code>1.23M</code> versus <code>1,23M</code>.</p>
+        <p>Replies follow each member's own Discord client language instead, currently English or Turkish. Neither needs any configuration.</p>
+      </section>
+
+      <hr>
+
+      <section class="my-4">
+        <h2>Permissions</h2>
+        <p><code>/setup</code>, <code>/set-channel</code>, <code>/panel</code> and <code>/customize</code> need the <strong>Manage Channels</strong> permission in the server, <code>/help</code> works for everyone. The bot itself needs <strong>Manage Channels</strong> too and uses it for nothing but creating, renaming and deleting its own channels.</p>
+        <p>Commands run in servers only, never in direct messages. Each command has a 15 second cooldown per server, and source lookups are capped at 50 per server and day. Confirmation prompts are private to whoever ran the command, finished changes are announced in the channel with the name of who made them.</p>
+      </section>
+    </div>
+  </main>
+
+  <%- include('partials/footer'); %>
+</body>
+
+</html>

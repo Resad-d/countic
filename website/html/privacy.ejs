@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+  <%- include('partials/head', {
+    title: 'Privacy Policy - Countic',
+    description: 'What Countic collects, what it never collects, and how to delete your data.',
+    canonicalPath: '/privacy',
+  }); %>
+</head>
+
+<body id="top" class="d-flex flex-column min-vh-100">
+
+  <%- include('partials/header', { active: '' }); %>
+
+  <main class="container my-5">
+    <div class="col-lg-8 mx-auto">
+      <h1 class="text-center mb-2">Privacy Policy</h1>
+      <p class="text-center text-white-50 mb-4">Last updated: November 2026</p>
+
+      <p class="lead">Countic is an independent tool that is not affiliated with YouTube, Google, Twitch or Kick. It
+        reads only publicly available platform statistics.</p>
+
+      <section class="my-4">
+        <h2>What We Collect</h2>
+        <ul>
+          <li><strong>Server settings:</strong> which channels Countic should track and how your counters are named
+            and formatted. Stored per Discord server.</li>
+          <li><strong>Discord account data on login:</strong> when you sign in to the web dashboard, Countic receives
+            your Discord ID, username, avatar and the list of servers you share with Countic through Discord's
+            official login. This is used only to show your servers and authorize changes.</li>
+          <li><strong>Operational logs:</strong> command usage is stored for 90 days (command, server, user, whether
+            it succeeded) to diagnose failures and detect abuse. This covers slash commands and dashboard changes.</li>
+          <li><strong>Session cookie:</strong> a login cookie so the dashboard remembers you. It contains no personal
+            data beyond an opaque session identifier.</li>
+        </ul>
+      </section>
+
+      <hr>
+
+      <section class="my-4">
+        <h2>What We Never Collect</h2>
+        <ul>
+          <li><strong>Messages.</strong> Countic cannot read messages in your server, its Discord intents do not
+            include them. Nothing you type is ever seen or stored.</li>
+          <li><strong>Page tracking.</strong> The website runs no advertising trackers. Page views are counted
+            anonymously through Cloudflare Web Analytics, which uses no cookies and receives no personal data.</li>
+          <li><strong>Sold data.</strong> Nothing collected is sold or shared with advertisers.</li>
+        </ul>
+      </section>
+
+      <hr>
+
+      <section class="my-4">
+        <h2>Third Parties</h2>
+        <p>Countic relies on Discord (login and bot hosting), Cloudflare (website traffic and anonymous page
+          counts), its hosting provider, and the public statistics APIs of YouTube, Twitch and Kick. One exception:
+          Kick's official API does not provide follower counts, so those come from a public third-party statistics
+          service. All statistics requests query public channel data only.</p>
+      </section>
+
+      <hr>
+
+      <section class="my-4">
+        <h2>Data Retention and Deletion</h2>
+        <p>Panel settings are deleted when you remove the panel with <code>/panel delete</code> or remove the bot from
+          your server. Leftover rows are purged automatically within 7 days. Command logs expire after 90 days. To
+          have your dashboard account data removed, contact us on the support server.</p>
+      </section>
+
+      <hr>
+
+      <section class="my-4">
+        <h2>Children's Privacy</h2>
+        <p>Countic does not knowingly collect information from anyone under the age of 13. If you believe a child has
+          provided personal information, contact us and it will be removed.</p>
+      </section>
+
+      <hr>
+
+      <section class="my-4">
+        <h2>Changes to This Policy</h2>
+        <p>Changes are posted on this page with an updated date above.</p>
+      </section>
+
+      <hr>
+
+      <section class="my-4">
+        <h2>Contact Us</h2>
+        <p>Join the
+          <a href="https://discord.gg/kKRnpfR" target="_blank" rel="noopener noreferrer"
+            class="text-decoration-none fw-bold text-primary-emphasis border-bottom">Countic Support Server</a>.</p>
+      </section>
+    </div>
+  </main>
+
+  <%- include('partials/footer'); %>
+</body>
+
+</html>
