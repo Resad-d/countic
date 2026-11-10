@@ -133,7 +133,7 @@ async function statusEmbed(
 async function overviewEmbed(ctx: CommandContext, interaction: ChatInputCommandInteraction): Promise<EmbedBuilder> {
   const { t } = ctx;
   const embed = new EmbedBuilder()
-    .setColor(0x1896c5)
+    .setColor(0x5865f2)
     .setTitle(t('panel.overviewTitle'))
     .setAuthor({ name: interaction.guild?.name ?? '', iconURL: interaction.guild?.iconURL() ?? undefined });
   const guildId = interaction.guildId;
@@ -326,7 +326,11 @@ async function handlePanelButton(interaction: ButtonInteraction): Promise<void> 
     return;
   }
   const { counterCount, leftover } = await teardownPanel(guild, panelRow);
-  const content = leftover > 0 ? t('panel.deleteLeftovers', { count: leftover }) : t('panel.deleted', { count: counterCount });
+  const platformLabel = t(`platform.${platform}`);
+  const content =
+    leftover > 0
+      ? t('panel.deleteLeftovers', { count: leftover, platform: platformLabel })
+      : t('panel.deleted', { count: counterCount, platform: platformLabel });
   await interaction.editReply({ content: t('common.done'), components: [] });
   await interaction.followUp({ content: `${content}\n-# ${t('common.requestedBy', { user: interaction.user.username })}` });
 }

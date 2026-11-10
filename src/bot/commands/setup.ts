@@ -14,6 +14,7 @@ import {
 import { createPanelRows, selectCountersWithReasons, selectPanel, type PanelCounterFull } from '../../db/queries.js';
 import { classify } from '../../lib/counters/classify.js';
 import { PLATFORMS, PlatformError, type FailureKind, type Platform, type ResolveResult } from '../../lib/counters/platform-types.js';
+import { DEFAULT_TEMPLATES } from '../../lib/counters/templates.js';
 import { config } from '../../lib/config.js';
 import { en, resolveLocale, tr, translator, type Translator } from '../../lib/i18n/index.js';
 import { childLogger } from '../../lib/logger.js';
@@ -112,7 +113,10 @@ async function buildPanel(
     await interaction.editReply({ content: t('setup.failed'), components: [] });
     return;
   }
-  const content = `${t('setup.created', { source: prepared.sourceName })}${extraNote ? `\n${extraNote}` : ''}`;
+  const content = `${t('setup.created', {
+    source: prepared.sourceName,
+    platform: t(`platform.${prepared.platform}`),
+  })}${extraNote ? `\n${extraNote}` : ''}`;
   const embeds = [
     new EmbedBuilder().addFields(
       { name: t('panel.statusSource'), value: `\`${prepared.sourceName}\`` },
@@ -212,10 +216,13 @@ export const setup: CommandDef = {
     const existing = await selectPanel(guildId, platform);
     if (existing) {
       const oldCounters = await selectCountersWithReasons([existing.id]);
-      if (
+      const complete =
         existing.sourceId === resolved.sourceId &&
-        oldCounters.every((counter) => guild.channels.cache.has(counter.channelId))
-      ) {
+        Object.keys(DEFAULT_TEMPLATES[platform]).every((type) =>
+          oldCounters.some((counter) => counter.type === type),
+        ) &&
+        oldCounters.every((counter) => guild.channels.cache.has(counter.channelId));
+      if (complete) {
         await interaction.editReply(ctx.t('setup.alreadyTracked'));
         return;
       }

@@ -61,7 +61,7 @@ export const help: CommandDef = {
   descKey: 'cmd.help.desc',
   async execute(interaction, ctx) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-    const embed = new EmbedBuilder().setColor(0x1896c5).setDescription(ctx.t('help.intro'));
+    const embed = new EmbedBuilder().setColor(0x5865f2).setDescription(ctx.t('help.intro'));
     const botUser = interaction.client.user;
     if (botUser) {
       embed.setAuthor({ name: ctx.t('help.title'), iconURL: botUser.displayAvatarURL() });
