@@ -42,7 +42,7 @@ function classifyYoutube(raw: string): ClassifiedInput | null {
 
   const url = toUrl(raw);
   if (!url || !YT_HOSTS.has(url.hostname)) {
-    return null;
+    return /^[\w.-]{3,30}$/.test(raw) ? { kind: 'youtube-handle', value: raw } : null;
   }
   const segments = pathSegments(url);
   const [head, tail] = segments;
