@@ -3,11 +3,16 @@ import http from 'node:http';
 import express from 'express';
 import type { Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
+import session from 'express-session';
+import connectPgSimple from 'connect-pg-simple';
+import { rateLimit } from 'express-rate-limit';
+import { pool } from '../db/client.js';
 import { config } from '../lib/config.js';
 import { childLogger } from '../lib/logger.js';
 import { startMetricsServer } from '../lib/metrics.js';
+import { assertWebAuthConfig, completeLogin, startLogin } from './auth.js';
 
-/** Public website, sessions and dashboard arrive with the OAuth commit. */
+/** Public website and Discord OAuth login, the dashboard arrives with its own commit. */
 
 const log = childLogger('web');
 const app = express();
@@ -43,8 +48,25 @@ app.use('/js', express.static(staticDir('js'), { index: false, maxAge: '1d' }));
 app.use('/vendor', express.static(staticDir('vendor'), { index: false, maxAge: '1d' }));
 app.use('/img', express.static(staticDir('img'), { index: false, maxAge: '7d' }));
 
-app.use((_req, res, next) => {
-  res.locals.user = null;
+assertWebAuthConfig();
+const sessionStore = new (connectPgSimple(session))({ pool, tableName: 'session' });
+app.use(session({
+  store: sessionStore,
+  secret: config.SESSION_SECRET ?? '',
+  resave: false,
+  saveUninitialized: false,
+  // Visits slide the expiry forward, inactive sessions still die after a week.
+  rolling: true,
+  cookie: {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: 'auto',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  },
+}));
+
+app.use((req, res, next) => {
+  res.locals.user = req.session.user ?? null;
   next();
 });
 
@@ -98,6 +120,44 @@ app.get('/add', (_req, res) => {
   res.redirect(`https://discord.com/oauth2/authorize?${params.toString()}`);
 });
 
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 5,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: 'Too many attempts, try again later.',
+});
+
+app.get('/login', loginLimiter, (req, res) => {
+  if (req.session.user) {
+    res.redirect('/');
+    return;
+  }
+  res.redirect(startLogin(req.session));
+});
+
+app.get('/callback', async (req, res) => {
+  const { code, state } = req.query;
+  if (typeof code !== 'string' || typeof state !== 'string') {
+    res.redirect('/');
+    return;
+  }
+  try {
+    await completeLogin(req, code, state);
+    res.redirect('/');
+  } catch (err) {
+    log.warn({ err }, 'login failed');
+    res.redirect('/');
+  }
+});
+
+app.get('/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.clearCookie('connect.sid');
+    res.redirect('/');
+  });
+});
+
 app.use((_req, res) => {
   res.status(404).render('404');
 });
@@ -123,6 +183,7 @@ if (config.METRICS_ENABLED) {
 for (const signal of ['SIGINT', 'SIGTERM'] as const) {
   process.on(signal, () => {
     log.info({ signal }, 'shutting down');
+    void sessionStore.close();
     server.close(() => process.exit(0));
     metricsServer?.close(() => process.exit(0));
     // Fallback if sockets refuse to drain.

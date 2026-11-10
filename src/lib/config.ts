@@ -33,6 +33,9 @@ const configSchema = z.object({
   DISCORD_ADMIN_GUILD_ID: optionalEnvString,
   DISCORD_OWNER_ID: optionalEnvString,
 
+  // Signing key for web session cookies, bot never reads it, web fails fast when it is missing.
+  SESSION_SECRET: z.preprocess(emptyToUndefined, z.string().min(32).optional()),
+
   YOUTUBE_API_KEY: optionalEnvString,
   TWITCH_CLIENT_ID: optionalEnvString,
   TWITCH_CLIENT_SECRET: optionalEnvString,

@@ -103,6 +103,18 @@ export const commandUsage = pgTable('command_usage', {
   index('command_usage_guild_created_at_idx').on(t.guildId, t.createdAt),
 ]);
 
+/**
+ * HTTP sessions of the web login, connect-pg-simple owns reads and writes.
+ * Declared here so migrations and Studio know the table.
+ */
+export const sessions = pgTable('session', {
+  sid: varchar('sid', { length: 255 }).primaryKey(),
+  sess: jsonb('sess').notNull(),
+  expire: timestamp('expire', { precision: 6, withTimezone: true }).notNull(),
+}, (t) => [
+  index('IDX_session_expire').on(t.expire),
+]);
+
 export type Guild = typeof guilds.$inferSelect;
 export type NewGuild = typeof guilds.$inferInsert;
 export type Panel = typeof panels.$inferSelect;
