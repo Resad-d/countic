@@ -37,6 +37,10 @@ function mb(bytes: number): number {
   return Math.round(bytes / 1024 / 1024);
 }
 
+function countUsers(client: Client): number {
+  return client.guilds.cache.reduce((total, guild) => total + (guild.memberCount ?? 0), 0);
+}
+
 function fmtDuration(seconds: number): string {
   const d = Math.floor(seconds / 86400);
   const h = Math.floor((seconds % 86400) / 3600);
@@ -53,6 +57,7 @@ type ShardSnapshot = {
   status: number;
   ping: number;
   guilds: number;
+  users: number;
   rss: number;
   uptime: number;
 };
@@ -66,6 +71,7 @@ async function shardSnapshots(client: Client): Promise<ShardSnapshot[]> {
         status: client.ws.status,
         ping: Number.isFinite(client.ws.ping) ? client.ws.ping : -1,
         guilds: client.guilds.cache.size,
+        users: countUsers(client),
         rss: process.memoryUsage().rss,
         uptime: process.uptime(),
       },
@@ -76,6 +82,7 @@ async function shardSnapshots(client: Client): Promise<ShardSnapshot[]> {
     status: c.ws.status,
     ping: Number.isFinite(c.ws.ping) ? c.ws.ping : -1,
     guilds: c.guilds.cache.size,
+    users: countUsers(c),
     rss: process.memoryUsage().rss,
     uptime: process.uptime(),
   }));
@@ -90,6 +97,7 @@ async function runStats(interaction: ChatInputCommandInteraction): Promise<void>
   ]);
   const ready = shards.filter((s) => s.status === Status.Ready).length;
   const totalGuilds = shards.reduce((total, s) => total + s.guilds, 0);
+  const totalUsers = shards.reduce((total, s) => total + s.users, 0);
   const totalRss = shards.reduce((total, s) => total + s.rss, 0);
   const pings = shards.map((s) => s.ping).filter((ping) => ping >= 0);
   const avgPing = pings.length ? Math.round(pings.reduce((total, ping) => total + ping, 0) / pings.length) : -1;
@@ -104,6 +112,7 @@ async function runStats(interaction: ChatInputCommandInteraction): Promise<void>
     .setTitle('Bot statistics')
     .addFields(
       { name: 'Guilds', value: `${totalGuilds} (cached)`, inline: true },
+      { name: 'Members', value: totalUsers.toLocaleString('en-US'), inline: true },
       { name: 'Shards', value: `${ready}/${shards.length} ready`, inline: true },
       { name: 'Avg ping', value: avgPing < 0 ? '?' : `${avgPing}ms`, inline: true },
       { name: 'RAM', value: `${mb(totalRss)} MB`, inline: true },
