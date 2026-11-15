@@ -37,10 +37,6 @@ function mb(bytes: number): number {
   return Math.round(bytes / 1024 / 1024);
 }
 
-function countUsers(client: Client): number {
-  return client.guilds.cache.reduce((total, guild) => total + (guild.memberCount ?? 0), 0);
-}
-
 function fmtDuration(seconds: number): string {
   const d = Math.floor(seconds / 86400);
   const h = Math.floor((seconds % 86400) / 3600);
@@ -71,7 +67,7 @@ async function shardSnapshots(client: Client): Promise<ShardSnapshot[]> {
         status: client.ws.status,
         ping: Number.isFinite(client.ws.ping) ? client.ws.ping : -1,
         guilds: client.guilds.cache.size,
-        users: countUsers(client),
+        users: client.guilds.cache.reduce((total, guild) => total + (guild.memberCount ?? 0), 0),
         rss: process.memoryUsage().rss,
         uptime: process.uptime(),
       },
@@ -82,7 +78,7 @@ async function shardSnapshots(client: Client): Promise<ShardSnapshot[]> {
     status: c.ws.status,
     ping: Number.isFinite(c.ws.ping) ? c.ws.ping : -1,
     guilds: c.guilds.cache.size,
-    users: countUsers(c),
+    users: c.guilds.cache.reduce((total, guild) => total + (guild.memberCount ?? 0), 0),
     rss: process.memoryUsage().rss,
     uptime: process.uptime(),
   }));

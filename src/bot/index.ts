@@ -5,6 +5,7 @@ import { pool } from '../db/client.js';
 import { createClient } from './client.js';
 import { wireEvents } from './events.js';
 import { createProviders } from './platforms/index.js';
+import { startPresence } from './presence.js';
 import { startScheduler } from './scheduler.js';
 import { startSweepers } from './sweepers.js';
 import { startTransport } from './transport.js';
@@ -31,6 +32,7 @@ if (!config.DISCORD_TOKEN) {
   wireCommands(client, providers);
   const stopScheduler = startScheduler(client, providers);
   const stopSweepers = startSweepers(client);
+  const stopPresence = startPresence(client);
   const metricsServer = config.METRICS_ENABLED ? startMetricsServer(config.BOT_METRICS_PORT) : undefined;
   const transportServer = startTransport(client, config.BOT_TRANSPORT_PORT);
 
@@ -44,6 +46,7 @@ if (!config.DISCORD_TOKEN) {
       // Discord socket first, then the pool, so nothing fires mid teardown.
       stopScheduler();
       stopSweepers();
+      stopPresence();
       metricsServer?.close();
       transportServer?.close();
       setTimeout(() => process.exit(0), 5_000).unref();

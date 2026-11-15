@@ -6,6 +6,8 @@ import { defaultNumberFormat } from '../lib/counters/templates.js';
 
 /** Panel and bookkeeping queries. */
 
+const num = (value: unknown): number => Number(value ?? 0);
+
 // Insert if missing, ignore if present.
 export async function ensureGuild(id: string): Promise<void> {
   await db.insert(guilds).values({ id }).onConflictDoNothing();
@@ -334,7 +336,6 @@ export async function selectAdminStats(): Promise<AdminStats> {
       group by command order by uses desc
     `),
   ]);
-  const num = (value: unknown): number => Number(value ?? 0);
   return {
     guilds: num((guilds.rows[0] as { total?: string } | undefined)?.total),
     panels: (panels.rows as { platform: string; total: string; enabled: string }[]).map((row) => ({
@@ -353,6 +354,17 @@ export async function selectAdminStats(): Promise<AdminStats> {
       failed: num(row.failed),
     })),
   };
+}
+
+export async function selectEnabledPanelCounts(): Promise<{ platform: Platform; enabled: number }[]> {
+  const result = await db.execute(sql`
+    select platform, count(*) filter (where enabled) as enabled
+    from panels group by platform
+  `);
+  return (result.rows as { platform: string; enabled: string }[]).map((row) => ({
+    platform: row.platform as Platform,
+    enabled: num(row.enabled),
+  }));
 }
 
 export type AdminSqlResult = {

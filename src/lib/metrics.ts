@@ -1,6 +1,7 @@
 import http from 'node:http';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import * as promClient from '@prometheus-io/client';
+import { selectEnabledPanelCounts } from '../db/queries.js';
 import { config } from './config.js';
 import { childLogger } from './logger.js';
 import { quotaSnapshot } from './quota.js';
@@ -54,6 +55,23 @@ new promClient.Gauge({
       const snapshot = await quotaSnapshot();
       this.set({ pool: 'refresh' }, config.YOUTUBE_REFRESH_POOL - snapshot.refresh);
       this.set({ pool: 'resolution' }, config.YOUTUBE_RESOLUTION_RESERVE - snapshot.resolution);
+    } catch {
+      // A scrape must not fail over the DB, the last values stay.
+    }
+  },
+});
+
+new promClient.Gauge({
+  name: 'panels_enabled',
+  help: 'Enabled panels per platform',
+  labelNames: ['platform'],
+  registers: [registry],
+  async collect() {
+    try {
+      const rows = await selectEnabledPanelCounts();
+      for (const row of rows) {
+        this.set({ platform: row.platform }, row.enabled);
+      }
     } catch {
       // A scrape must not fail over the DB, the last values stay.
     }
