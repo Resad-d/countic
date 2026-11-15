@@ -24,11 +24,15 @@ export type CreatedCounter = { type: string; channelId: string; name: string };
 export async function createPanelChannels(guild: Guild, platform: Platform, sourceName: string): Promise<CreatedCounter[]> {
   // Number decimals follow the server language.
   const locale = guild.preferredLocale ?? 'en';
+  const overwrites = [
+    { id: guild.client.user.id, allow: [PermissionFlagsBits.Connect, PermissionFlagsBits.ManageChannels] },
+    { id: guild.roles.everyone.id, deny: [PermissionFlagsBits.Connect] },
+  ];
   const categoryInput = { type: 'category', template: null, numberFormat: defaultNumberFormat('category') };
   const categoryName = counterName(categoryInput, platform, { sourceName, values: {} }, locale) ?? 'category';
   const created: CreatedCounter[] = [];
   try {
-    const category = await guild.channels.create({ name: categoryName, type: ChannelType.GuildCategory });
+    const category = await guild.channels.create({ name: categoryName, type: ChannelType.GuildCategory, permissionOverwrites: overwrites });
     created.push({ type: 'category', channelId: category.id, name: categoryName });
     const defaults = DEFAULT_TEMPLATES[platform] as Partial<Record<string, string>>;
     for (const type of Object.keys(defaults)) {
@@ -41,6 +45,7 @@ export async function createPanelChannels(guild: Guild, platform: Platform, sour
         name,
         type: ChannelType.GuildVoice,
         parent: category.id,
+        permissionOverwrites: overwrites,
       });
       created.push({ type, channelId: channel.id, name });
     }
