@@ -19,7 +19,7 @@ export type CreatedCounter = { type: string; channelId: string; name: string };
 
 /**
  * Create the category and its counter voice channels, placeholders until the first update.
- * Throws on the first failure, the caller owns cleanup of anything already created.
+ * Throws on the first failure, channels created before the failure are deleted.
  */
 export async function createPanelChannels(guild: Guild, platform: Platform, sourceName: string): Promise<CreatedCounter[]> {
   // Number decimals follow the server language.
@@ -27,33 +27,40 @@ export async function createPanelChannels(guild: Guild, platform: Platform, sour
   const categoryInput = { type: 'category', template: null, numberFormat: defaultNumberFormat('category') };
   const categoryName = counterName(categoryInput, platform, { sourceName, values: {} }, locale) ?? 'category';
   const created: CreatedCounter[] = [];
-  const category = await guild.channels.create({ name: categoryName, type: ChannelType.GuildCategory });
-  created.push({ type: 'category', channelId: category.id, name: categoryName });
-  const defaults = DEFAULT_TEMPLATES[platform] as Partial<Record<string, string>>;
-  for (const type of Object.keys(defaults)) {
-    if (type === 'category') {
-      continue;
+  try {
+    const category = await guild.channels.create({ name: categoryName, type: ChannelType.GuildCategory });
+    created.push({ type: 'category', channelId: category.id, name: categoryName });
+    const defaults = DEFAULT_TEMPLATES[platform] as Partial<Record<string, string>>;
+    for (const type of Object.keys(defaults)) {
+      if (type === 'category') {
+        continue;
+      }
+      const input = { type, template: null, numberFormat: defaultNumberFormat(type) };
+      const name = counterName(input, platform, null, locale) ?? type;
+      const channel = await guild.channels.create({
+        name,
+        type: ChannelType.GuildVoice,
+        parent: category.id,
+      });
+      created.push({ type, channelId: channel.id, name });
     }
-    const input = { type, template: null, numberFormat: defaultNumberFormat(type) };
-    const name = counterName(input, platform, null, locale) ?? type;
-    const channel = await guild.channels.create({
-      name,
-      type: ChannelType.GuildVoice,
-      parent: category.id,
-    });
-    created.push({ type, channelId: channel.id, name });
+    await category.setPosition(0).catch(() => {});
+    return created;
+  } catch (err) {
+    await deleteChannelsBestEffort(guild, created);
+    throw err;
   }
-  await category.setPosition(0).catch(() => {});
-  return created;
 }
 
 /**
- * Delete channels by id, cache first, REST fetch on miss.
- * Returns how many could not be deleted.
+ * Delete panel channels by counter rows, children before the category.
+ * Cache first, REST fetch on miss. Returns how many could not be deleted.
  */
-export async function deleteChannelsBestEffort(guild: Guild, channelIds: string[]): Promise<number> {
+export async function deleteChannelsBestEffort(guild: Guild, counters: { type: string; channelId: string }[]): Promise<number> {
+  const children = counters.filter((counter) => counter.type !== 'category').map((counter) => counter.channelId);
+  const parents = counters.filter((counter) => counter.type === 'category').map((counter) => counter.channelId);
   let failed = 0;
-  for (const id of channelIds) {
+  for (const id of [...children, ...parents]) {
     try {
       const channel = guild.channels.cache.get(id) ?? (await guild.channels.fetch(id));
       if (channel) {
@@ -83,9 +90,7 @@ export async function teardownPanel(
   panelRow: PanelRow,
 ): Promise<{ counterCount: number; leftover: number }> {
   const counters = await selectCountersWithReasons([panelRow.id]);
-  const children = counters.filter((counter) => counter.type !== 'category').map((counter) => counter.channelId);
-  const parents = counters.filter((counter) => counter.type === 'category').map((counter) => counter.channelId);
-  const leftover = await deleteChannelsBestEffort(guild, [...children, ...parents]);
+  const leftover = await deleteChannelsBestEffort(guild, counters);
   await deletePanelRows(panelRow.id);
   return { counterCount: counters.length, leftover };
 }

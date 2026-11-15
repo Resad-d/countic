@@ -60,6 +60,7 @@ services:
       # Overrides the host URL from .env, containers must use the compose hostname.
       DATABASE_URL: postgres://countic:${COUNTIC_PG_PASSWORD:-countic}@postgres:5432/countic
       WEB_PORT: 3000
+      TRANSPORT_URL: http://bot:9103
       METRICS_ENABLED: ${METRICS_ENABLED:-true}
       METRICS_PORT: 9101
     depends_on:

@@ -109,7 +109,7 @@ async function buildPanel(
     });
   } catch (err) {
     log.error({ err, guildId: guild.id }, 'panel creation failed');
-    await deleteChannelsBestEffort(guild, created.map((counter) => counter.channelId));
+    await deleteChannelsBestEffort(guild, created);
     await interaction.editReply({ content: t('setup.failed'), components: [] });
     return;
   }

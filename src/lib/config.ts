@@ -17,6 +17,11 @@ const configSchema = z.object({
 
   WEB_PORT: z.coerce.number().int().min(1).max(65535).default(3000),
 
+  // Bot refuses to start the transport without the secret, web refuses to call it.
+  TRANSPORT_SECRET: z.preprocess(emptyToUndefined, z.string().min(32).optional()),
+  BOT_TRANSPORT_PORT: z.coerce.number().int().min(1).max(65535).default(9103),
+  TRANSPORT_URL: z.url().default('http://localhost:9103'),
+
   SITE_URL: z.url().default('https://countic.app'),
   TRUST_PROXY: z.preprocess(
     emptyToUndefined,

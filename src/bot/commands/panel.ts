@@ -315,7 +315,7 @@ async function handlePanelButton(interaction: ButtonInteraction): Promise<void> 
       await interaction.editReply({ content: t('common.expired'), components: [] });
       return;
     }
-    const leftover = await deleteChannelsBestEffort(guild, [counter.channelId]);
+    const leftover = await deleteChannelsBestEffort(guild, [{ type: counter.type, channelId: counter.channelId }]);
     await deleteCounterRow(panelRow.id, scope);
     const content =
       leftover > 0

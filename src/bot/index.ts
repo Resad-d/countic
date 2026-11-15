@@ -7,6 +7,7 @@ import { wireEvents } from './events.js';
 import { createProviders } from './platforms/index.js';
 import { startScheduler } from './scheduler.js';
 import { startSweepers } from './sweepers.js';
+import { startTransport } from './transport.js';
 import { wireCommands } from './router.js';
 
 /**
@@ -31,6 +32,7 @@ if (!config.DISCORD_TOKEN) {
   const stopScheduler = startScheduler(client, providers);
   const stopSweepers = startSweepers(client);
   const metricsServer = config.METRICS_ENABLED ? startMetricsServer(config.BOT_METRICS_PORT) : undefined;
+  const transportServer = startTransport(client, config.BOT_TRANSPORT_PORT);
 
   process.on('unhandledRejection', (err) => {
     log.error({ err }, 'unhandled rejection');
@@ -43,6 +45,7 @@ if (!config.DISCORD_TOKEN) {
       stopScheduler();
       stopSweepers();
       metricsServer?.close();
+      transportServer?.close();
       setTimeout(() => process.exit(0), 5_000).unref();
       void (async () => {
         try {
