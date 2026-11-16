@@ -71,7 +71,7 @@ async function applyEverywhere(client: Client, presence: PresenceData): Promise<
   client.user?.setPresence(presence);
 }
 
-let showBrand = true;
+let showBrand = false;
 
 // Applies one slot, then flips to the other for the next tick.
 async function rotate(client: Client): Promise<void> {
@@ -91,15 +91,22 @@ async function rotate(client: Client): Promise<void> {
   }
 }
 
-// Shard 0 drives the rotation, other shards receive the payload by broadcast.
-export function startPresence(client: Client): () => void {
-  const shardId = client.shard?.ids[0] ?? 0;
-  if (shardId !== 0) {
-    return () => {};
+async function applyInitial(client: Client): Promise<void> {
+  try {
+    client.user?.setPresence(presenceFor(await brandSlot()));
+  } catch (err) {
+    log.warn({ err }, 'initial presence failed');
   }
+}
+
+// Shard 0 drives the rotation, every shard labels itself at ready and receives broadcasts.
+export function startPresence(client: Client): () => void {
   let timer: ReturnType<typeof setInterval> | undefined;
   const onReady = (): void => {
-    void rotate(client);
+    void applyInitial(client);
+    if ((client.shard?.ids[0] ?? 0) !== 0) {
+      return;
+    }
     timer = setInterval(() => void rotate(client), SLOT_MS);
   };
   client.once(Events.ClientReady, onReady);
