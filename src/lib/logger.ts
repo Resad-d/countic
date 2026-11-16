@@ -5,7 +5,10 @@ import { config } from './config.js';
 
 const root = pino({
   level: config.LOG_LEVEL,
-  base: { env: config.NODE_ENV },
+  base:
+    process.env.SHARDS === undefined
+      ? { env: config.NODE_ENV }
+      : { env: config.NODE_ENV, shard: Number(process.env.SHARDS) },
   redact: {
     paths: [
       'token',

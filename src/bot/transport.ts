@@ -104,10 +104,13 @@ async function checkManageGuild(client: Client, guildId: string, userId: string)
         }
         return guild.members
           .fetch(ctx.userId)
-          .then((member) => member.permissions.has(PermissionFlagsBits.ManageGuild))
+          .then((member) => member.permissions.has(BigInt(ctx.manageGuild)))
           .catch(() => false);
       },
-      { context: { guildId, userId }, shard: shardIdForGuild(guildId, client.shard.count) },
+      {
+        context: { guildId, userId, manageGuild: Number(PermissionFlagsBits.ManageGuild) },
+        shard: shardIdForGuild(guildId, client.shard.count),
+      },
     )) === true;
     return allowed;
   } catch (err) {

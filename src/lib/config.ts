@@ -38,6 +38,12 @@ const configSchema = z.object({
   DISCORD_ADMIN_GUILD_ID: optionalEnvString,
   DISCORD_OWNER_ID: optionalEnvString,
 
+  // unset = single process, auto = discord recommended, number = fixed count.
+  SHARD_COUNT: z.preprocess(
+    emptyToUndefined,
+    z.union([z.literal('auto'), z.coerce.number().int().min(1).max(64)]),
+  ).optional(),
+
   // Signing key for web session cookies, bot never reads it, web fails fast when it is missing.
   SESSION_SECRET: z.preprocess(emptyToUndefined, z.string().min(32).optional()),
 

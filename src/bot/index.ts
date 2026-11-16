@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { ShardingManager } from 'discord.js';
 import { config } from '../lib/config.js';
 import { childLogger } from '../lib/logger.js';
 import { startMetricsServer } from '../lib/metrics.js';
@@ -25,6 +27,33 @@ if (!config.DISCORD_TOKEN) {
   setInterval(() => {
     log.debug({ rss: process.memoryUsage().rss }, 'heartbeat');
   }, 60_000);
+} else if (!process.env.SHARDING_MANAGER && config.SHARD_COUNT !== undefined) {
+  // Manager process. djs forks this file again with SHARDING_MANAGER, SHARDS and SHARD_COUNT env set.
+  const manager = new ShardingManager(fileURLToPath(import.meta.url), {
+    totalShards: config.SHARD_COUNT,
+    token: config.DISCORD_TOKEN,
+    execArgv: process.execArgv,
+    respawn: true,
+  });
+  manager.on('shardCreate', (shard) => {
+    log.info({ shard: shard.id }, 'shard spawned');
+    shard.on('death', () => log.info({ shard: shard.id }, 'shard exited'));
+  });
+  for (const signal of ['SIGINT', 'SIGTERM'] as const) {
+    process.on(signal, () => {
+      log.info({ signal }, 'shutting down');
+      const kills = Promise.allSettled(manager.shards.map((shard) => shard.kill()));
+      const grace = new Promise((resolve) => setTimeout(resolve, 6_500));
+      void Promise.race([kills, grace]).then(() => process.exit(0));
+    });
+  }
+  manager
+    .spawn()
+    .then(() => log.info({ totalShards: config.SHARD_COUNT }, 'all shards ready'))
+    .catch((err) => {
+      log.error({ err }, 'shard spawn failed');
+      process.exit(1);
+    });
 } else {
   const client = createClient();
   wireEvents(client);
@@ -33,7 +62,10 @@ if (!config.DISCORD_TOKEN) {
   const stopScheduler = startScheduler(client, providers);
   const stopSweepers = startSweepers(client);
   const stopPresence = startPresence(client);
-  const metricsServer = config.METRICS_ENABLED ? startMetricsServer(config.BOT_METRICS_PORT) : undefined;
+  const metricsServer =
+    config.METRICS_ENABLED && (client.shard?.ids.includes(0) ?? true)
+      ? startMetricsServer(config.BOT_METRICS_PORT)
+      : undefined;
   const transportServer = startTransport(client, config.BOT_TRANSPORT_PORT);
 
   process.on('unhandledRejection', (err) => {
