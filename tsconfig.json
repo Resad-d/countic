@@ -11,6 +11,10 @@
     "strict": true,
     "noImplicitOverride": true,
     "noFallthroughCasesInSwitch": true,
+    "allowUnreachableCode": false,
+    "noImplicitReturns": true,
+    "isolatedModules": true,
+    "erasableSyntaxOnly": true,
     "noUncheckedIndexedAccess": false,
     "exactOptionalPropertyTypes": false,
 

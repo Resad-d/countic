@@ -169,6 +169,12 @@ function avatarUrl(id: string, avatar: string | null): string {
 
 function regenerate(req: Request): Promise<void> {
   return new Promise((resolve, reject) => {
-    req.session.regenerate((error) => (error ? reject(error) : resolve()));
+    req.session.regenerate((error) => {
+      if (!error) {
+        resolve();
+        return;
+      }
+      reject(error instanceof Error ? error : new Error('session regenerate failed'));
+    });
   });
 }

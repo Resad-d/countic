@@ -222,7 +222,8 @@ function ensureCsrf(req: Request): string {
 
 function csrfOk(req: Request): boolean {
   const expected = req.session.csrf;
-  const provided = typeof req.body?._csrf === 'string' ? req.body._csrf : '';
+  const body = req.body as { _csrf?: unknown } | undefined;
+  const provided = typeof body?._csrf === 'string' ? body._csrf : '';
   if (!expected || provided.length !== expected.length) {
     return false;
   }

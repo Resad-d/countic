@@ -72,7 +72,7 @@ export async function deleteChannelsBestEffort(guild: Guild, counters: { type: s
         await channel.delete();
       }
     } catch (err) {
-      if (err instanceof DiscordAPIError && Number(err.code) === RESTJSONErrorCodes.UnknownChannel) {
+      if (err instanceof DiscordAPIError && Number(err.code) === (RESTJSONErrorCodes.UnknownChannel as number)) {
         continue;
       }
       log.warn({ err, channelId: id }, 'channel delete failed');

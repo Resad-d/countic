@@ -89,7 +89,8 @@ const pages: Array<[route: string, active: string]> = [
 for (const [route, active] of pages) {
   app.get(route, (req, res) => {
     if (route === '/guide') {
-      const requested = String(req.query.platform ?? '');
+      const raw = req.query.platform;
+      const requested = typeof raw === 'string' ? raw : '';
       const supported = requested === 'youtube' || requested === 'twitch' || requested === 'kick';
       res.render('guide', { active, platformId: supported ? requested : 'youtube' });
       return;
@@ -110,7 +111,7 @@ app.get('/robots.txt', (_req, res) => {
   res.type('text/plain').render('robots');
 });
 
-const INVITE_PERMISSIONS = '275146729488';
+const INVITE_PERMISSIONS = '1040'; // Manage Channels + View Channels
 app.get('/add', (req, res) => {
   if (!config.DISCORD_CLIENT_ID) {
     res.status(503).json({ error: 'client id not configured' });

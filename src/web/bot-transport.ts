@@ -10,13 +10,14 @@ import { config } from '../lib/config.js';
 export type TransportErrorKind = 'unconfigured' | 'unreachable' | 'not-ready' | 'not-found' | 'conflict' | 'rejected';
 
 export class TransportError extends Error {
-  constructor(
-    readonly kind: TransportErrorKind,
-    message: string,
-    readonly body?: Record<string, unknown>,
-  ) {
+  readonly kind: TransportErrorKind;
+  readonly body?: Record<string, unknown>;
+
+  constructor(kind: TransportErrorKind, message: string, body?: Record<string, unknown>) {
     super(message);
     this.name = 'TransportError';
+    this.kind = kind;
+    this.body = body;
   }
 }
 

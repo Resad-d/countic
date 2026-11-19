@@ -5,8 +5,6 @@ name: countic
 services:
   postgres:
     image: postgres:16-alpine
-    ports:
-      - "127.0.0.1:5432:5432"
     environment:
       POSTGRES_USER: countic
       POSTGRES_PASSWORD: ${COUNTIC_PG_PASSWORD:-countic}
@@ -57,6 +55,8 @@ services:
         required: false
     environment:
       NODE_ENV: production
+      # The web process never uses the bot token.
+      DISCORD_TOKEN: ''
       # Overrides the host URL from .env, containers must use the compose hostname.
       DATABASE_URL: postgres://countic:${COUNTIC_PG_PASSWORD:-countic}@postgres:5432/countic
       WEB_PORT: 3000

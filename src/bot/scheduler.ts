@@ -62,7 +62,7 @@ async function renameCounter(counter: PanelCounter, name: string, client: Client
       channel = await client.channels.fetch(counter.channelId);
     } catch (err) {
       // An outage must not look like a deleted channel, only a definitive unknown channel does.
-      if (!(err instanceof DiscordAPIError && Number(err.code) === RESTJSONErrorCodes.UnknownChannel)) {
+      if (!(err instanceof DiscordAPIError && Number(err.code) === (RESTJSONErrorCodes.UnknownChannel as number))) {
         throw err;
       }
     }
@@ -113,7 +113,7 @@ async function updatePanel(
     await disablePanel(panel.id, 'no counter could be updated');
     return false;
   }
-  await markCheckedWithStats(panel.id, stats.values as Record<string, number>);
+  await markCheckedWithStats(panel.id, stats.values);
   return true;
 }
 

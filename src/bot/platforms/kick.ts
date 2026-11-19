@@ -44,7 +44,7 @@ export function createKickProvider(clientId: string, clientSecret: string): Plat
   }
 
   async function fetchFollowers(slug: string): Promise<number> {
-    const res = await fetch(`${WIDGET_URL}?${new URLSearchParams({ streamer: slug, count: '' })}`);
+    const res = await fetch(`${WIDGET_URL}?${new URLSearchParams({ streamer: slug, count: '' }).toString()}`);
     if (!res.ok) {
       throw new Error(`kick-stuff request failed with ${res.status}`);
     }
@@ -62,13 +62,13 @@ export function createKickProvider(clientId: string, clientSecret: string): Plat
       if (kind !== 'kick-slug') {
         return { failure: 'invalid', message: `kick cannot resolve ${kind}` };
       }
-      const body = (await kickApi(`channels?${new URLSearchParams({ slug: value })}`)) as KickChannelsBody;
+      const body = (await kickApi(`channels?${new URLSearchParams({ slug: value }).toString()}`)) as KickChannelsBody;
       const channel = body.data?.[0];
       if (!channel?.broadcaster_user_id) {
         return { failure: 'not-found', message: `kick channel not found for ${value}` };
       }
       // The users endpoint carries the display-cased name, the slug is all lowercase.
-      const usersBody = (await kickApi(`users?${new URLSearchParams({ id: channel.broadcaster_user_id })}`)) as KickUsersBody;
+      const usersBody = (await kickApi(`users?${new URLSearchParams({ id: channel.broadcaster_user_id }).toString()}`)) as KickUsersBody;
       const user = usersBody.data?.[0];
       return { sourceId: channel.broadcaster_user_id, sourceName: user?.name ?? user?.username ?? channel.slug ?? value };
     },
@@ -78,13 +78,13 @@ export function createKickProvider(clientId: string, clientSecret: string): Plat
       const results = new Map<string, FetchResult>();
       for (const id of sourceIds) {
         try {
-          const channelsBody = (await kickApi(`channels?${new URLSearchParams({ broadcaster_user_id: id })}`)) as KickChannelsBody;
+          const channelsBody = (await kickApi(`channels?${new URLSearchParams({ broadcaster_user_id: id }).toString()}`)) as KickChannelsBody;
           const channel = channelsBody.data?.[0];
           if (!channel) {
             results.set(id, { failure: 'permanent', message: 'kick channel not found' });
             continue;
           }
-          const usersBody = (await kickApi(`users?${new URLSearchParams({ id })}`)) as KickUsersBody;
+          const usersBody = (await kickApi(`users?${new URLSearchParams({ id }).toString()}`)) as KickUsersBody;
           const user = usersBody.data?.[0];
           if (!user) {
             results.set(id, { failure: 'permanent', message: 'kick user not found' });

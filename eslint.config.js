@@ -7,6 +7,16 @@ export default [
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
+  ...tseslint.configs.recommendedTypeChecked.map((config) => ({ ...config, files: ['src/**/*.ts'] })),
+  {
+    files: ['src/**/*.ts'],
+    languageOptions: {
+      parserOptions: { projectService: true },
+    },
+    rules: {
+      '@typescript-eslint/switch-exhaustiveness-check': 'error',
+    },
+  },
   {
     rules: {
       '@typescript-eslint/no-unused-vars': [

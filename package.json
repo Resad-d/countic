@@ -1,10 +1,18 @@
 {
   "name": "countic",
-  "version": "2.0.0-alpha.1",
+  "version": "2.0.0",
   "description": "Discord bot that shows YouTube, Twitch and Kick statistics in voice channel names",
   "type": "module",
   "private": true,
   "license": "Apache-2.0",
+  "homepage": "https://countic.app",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Resad-d/countic.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Resad-d/countic/issues"
+  },
   "engines": {
     "node": ">=24"
   },

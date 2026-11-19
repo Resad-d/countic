@@ -32,8 +32,11 @@ export type FailureKind = 'transient' | 'permanent' | 'quota';
 
 /** Error carrying a failure kind so callers can map it onto retry and disable behavior. */
 export class PlatformError extends Error {
-  constructor(readonly failure: FailureKind, message: string) {
+  readonly failure: FailureKind;
+
+  constructor(failure: FailureKind, message: string) {
     super(message);
+    this.failure = failure;
   }
 }
 

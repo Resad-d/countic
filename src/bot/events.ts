@@ -16,13 +16,13 @@ export function wireEvents(client: Client): void {
     guildCount.set(ready.guilds.cache.size);
   });
 
-  client.on(Events.GuildCreate, async (guild) => {
+  client.on(Events.GuildCreate, (guild) => {
     log.info(
       { evt: 'guildJoin', guildId: guild.id, name: guild.name, memberCount: guild.memberCount, shard: guild.shardId },
       'guild joined',
     );
     guildCount.inc();
-    await ensureGuild(guild.id);
+    void ensureGuild(guild.id);
   });
 
   client.on(Events.GuildDelete, (guild) => {

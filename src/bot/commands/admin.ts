@@ -50,7 +50,7 @@ function trunc(text: string, max = 3900): string {
 
 type ShardSnapshot = {
   ids: string;
-  status: number;
+  status: Status;
   ping: number;
   guilds: number;
   users: number;

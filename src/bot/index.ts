@@ -42,9 +42,11 @@ if (!config.DISCORD_TOKEN) {
   for (const signal of ['SIGINT', 'SIGTERM'] as const) {
     process.on(signal, () => {
       log.info({ signal }, 'shutting down');
-      const kills = Promise.allSettled(manager.shards.map((shard) => shard.kill()));
-      const grace = new Promise((resolve) => setTimeout(resolve, 6_500));
-      void Promise.race([kills, grace]).then(() => process.exit(0));
+      // kill only signals the children, they finish their own shutdown.
+      for (const shard of manager.shards.values()) {
+        shard.kill();
+      }
+      process.exit(0);
     });
   }
   manager

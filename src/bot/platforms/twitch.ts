@@ -44,7 +44,7 @@ export function createTwitchProvider(clientId: string, clientSecret: string): Pl
       if (kind !== 'twitch-login') {
         return { failure: 'invalid', message: `twitch cannot resolve ${kind}` };
       }
-      const body = (await helix(`users?${new URLSearchParams({ login: value })}`)) as UsersBody;
+      const body = (await helix(`users?${new URLSearchParams({ login: value }).toString()}`)) as UsersBody;
       const user = body.data?.[0];
       if (!user?.id) {
         return { failure: 'not-found', message: `twitch user not found for ${value}` };
@@ -64,7 +64,7 @@ export function createTwitchProvider(clientId: string, clientSecret: string): Pl
           params.append('id', id);
         }
         try {
-          const body = (await helix(`users?${params}`)) as UsersBody;
+          const body = (await helix(`users?${params.toString()}`)) as UsersBody;
           for (const user of body.data ?? []) {
             if (user.id) {
               names.set(user.id, user.display_name ?? user.id);
@@ -89,7 +89,7 @@ export function createTwitchProvider(clientId: string, clientSecret: string): Pl
           params.append('user_id', id);
         }
         try {
-          const body = (await helix(`streams?${params}`)) as StreamsBody;
+          const body = (await helix(`streams?${params.toString()}`)) as StreamsBody;
           for (const stream of body.data ?? []) {
             if (stream.user_id && typeof stream.viewer_count === 'number') {
               viewers.set(stream.user_id, stream.viewer_count);
@@ -119,7 +119,7 @@ export function createTwitchProvider(clientId: string, clientSecret: string): Pl
   };
 
   async function fetchFollowers(id: string): Promise<number> {
-    const body = (await helix(`channels/followers?${new URLSearchParams({ broadcaster_id: id })}`)) as FollowersBody;
+    const body = (await helix(`channels/followers?${new URLSearchParams({ broadcaster_id: id }).toString()}`)) as FollowersBody;
     if (typeof body.total !== 'number') {
       throw new PlatformError('transient', `followers response missing total for ${id}`);
     }

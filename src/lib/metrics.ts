@@ -83,16 +83,17 @@ export async function renderMetrics(): Promise<string> {
 }
 
 export function startMetricsServer(port: number): http.Server {
-  const server = http.createServer(async (req: IncomingMessage, res: ServerResponse) => {
-    try {
-      const body = await renderMetrics();
-      res.writeHead(200, { 'content-type': 'text/plain; version=0.0.4; charset=utf-8' });
-      res.end(body);
-    } catch (err) {
-      log.error({ err }, 'failed to render metrics');
-      res.writeHead(500, { 'content-type': 'application/json; charset=utf-8' });
-      res.end(JSON.stringify({ error: 'metrics unavailable' }));
-    }
+  const server = http.createServer((req: IncomingMessage, res: ServerResponse) => {
+    renderMetrics()
+      .then((body) => {
+        res.writeHead(200, { 'content-type': 'text/plain; version=0.0.4; charset=utf-8' });
+        res.end(body);
+      })
+      .catch((err) => {
+        log.error({ err }, 'failed to render metrics');
+        res.writeHead(500, { 'content-type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({ error: 'metrics unavailable' }));
+      });
   });
   server.listen(port, () => {
     log.info({ port }, 'metrics listening (internal only)');

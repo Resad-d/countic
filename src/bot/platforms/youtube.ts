@@ -32,7 +32,7 @@ export function createYoutubeProvider(apiKey: string): PlatformProvider {
     params.set('key', apiKey);
     let res: Response;
     try {
-      res = await fetch(`${API}/channels?${params}`);
+      res = await fetch(`${API}/channels?${params.toString()}`);
     } catch (err) {
       throw new PlatformError('transient', `network error ${err instanceof Error ? err.message : String(err)}`);
     }
