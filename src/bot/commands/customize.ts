@@ -18,9 +18,8 @@ import {
   setCounterFormat,
   setCounterTemplate,
 } from '../../db/queries.js';
-import { counterNameLength } from '../../lib/counters/names.js';
-import { COUNTER_TYPES, PLATFORMS, type Platform, type StatKey } from '../../lib/counters/platform-types.js';
-import { DEFAULT_TEMPLATES } from '../../lib/counters/templates.js';
+import { COUNTER_TYPES, PLATFORMS, type Platform } from '../../lib/counters/platform-types.js';
+import { DEFAULT_TEMPLATES, validateTemplate } from '../../lib/counters/templates.js';
 import { counterText, en, resolveLocale, tr, translator } from '../../lib/i18n/index.js';
 import { counterPreview, type CommandDef } from './index.js';
 
@@ -237,40 +236,22 @@ async function handleTemplateModal(interaction: ModalSubmitInteraction): Promise
   await interaction.deferReply({ flags: MessageFlags.Ephemeral });
   const candidate = interaction.fields.getTextInputValue('template').trim();
   const type = row.type;
-  if (candidate.length > 0) {
-    if (type === 'category') {
-      if (!candidate.includes('[name]')) {
-        await interaction.editReply(t('customize.needPlaceholder', { placeholder: '[name]' }));
-        return;
-      }
-      if (new RegExp(`\\[(${COUNTER_TYPES.join('|')})\\]`).test(candidate)) {
-        await interaction.editReply(t('customize.categoryNoStats'));
-        return;
-      }
-    } else if (!candidate.includes(`[${type}]`)) {
-      await interaction.editReply(t('customize.needPlaceholder', { placeholder: `[${type}]` }));
-      return;
+  const check = validateTemplate(row.platform, type, candidate, row.numberFormat, guild.preferredLocale ?? 'en');
+  if (!check.ok) {
+    if (check.code === 'need-placeholder') {
+      await interaction.editReply(t('customize.needPlaceholder', { placeholder: check.placeholder ?? '' }));
+    } else if (check.code === 'category-no-stats') {
+      await interaction.editReply(t('customize.categoryNoStats'));
+    } else {
+      await interaction.editReply(t('customize.tooLong', { length: check.length ?? 0 }));
     }
-    // Render with a sample number first, the rendered name is longer than the template.
-    const locale = guild.preferredLocale ?? 'en';
-    const stats = {
-      sourceName: 'Sample',
-      values: (type === 'category' ? {} : { [type as StatKey]: 1234567890 }) as Partial<Record<StatKey, number>>,
-    };
-    const length = counterNameLength({ type, template: candidate, numberFormat: row.numberFormat }, row.platform, stats, locale);
-    if (length > 100) {
-      await interaction.editReply(t('customize.tooLong', { length }));
-      return;
-    }
-    await setCounterTemplate(row.id, candidate);
-    const content = t('customize.templateSaved', { counter: counterText(t, type) });
-    await interaction.editReply(t('common.done'));
-    await interaction.followUp({ content: `${content}\n-# ${t('common.requestedBy', { user: interaction.user.username })}` });
     return;
   }
-  // Empty submission resets to the platform default.
-  await setCounterTemplate(row.id, null);
-  const resetContent = t('customize.templateReset', { counter: counterText(t, type) });
+  await setCounterTemplate(row.id, check.template);
+  // A null template means the submission was empty and resets to the platform default.
+  const content = check.template === null
+    ? t('customize.templateReset', { counter: counterText(t, type) })
+    : t('customize.templateSaved', { counter: counterText(t, type) });
   await interaction.editReply(t('common.done'));
-  await interaction.followUp({ content: `${resetContent}\n-# ${t('common.requestedBy', { user: interaction.user.username })}` });
+  await interaction.followUp({ content: `${content}\n-# ${t('common.requestedBy', { user: interaction.user.username })}` });
 }

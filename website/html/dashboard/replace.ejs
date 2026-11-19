@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+  <%- include('partials/head', { title }); %>
+</head>
+
+<body class="dash-body">
+  <%- include('partials/header', { guild }); %>
+
+  <main class="dash-page">
+    <% const rebuild = oldSourceName !== null && oldSourceName === pending.sourceName; %>
+    <h1 class="h4 fw-bold mb-3"><%= rebuild ? 'Rebuild' : 'Replace' %> the <%= platformLabel %> panel?</h1>
+
+    <div class="dash-panel-card dash-platform-<%= platform %>">
+      <% if (rebuild) { %>
+      <p class="mb-2">This deletes the channels of the <%= platformLabel %> panel for <strong><%= pending.sourceName %></strong> and builds them again with fresh values.</p>
+      <% } else if (oldSourceName) { %>
+      <p class="mb-2">This deletes the <%= platformLabel %> panel for <strong><%= oldSourceName %></strong> and its channels, then creates a new one for:</p>
+      <% } else { %>
+      <p class="mb-2">This deletes the current panel and its channels, then creates a new one for:</p>
+      <% } %>
+      <% if (!rebuild) { %>
+      <p class="fs-5 mb-3">
+        <img src="<%= platformIcon %>" width="22" height="22" alt="">
+        <strong><%= pending.sourceName %></strong>
+      </p>
+      <% } %>
+      <% if (carryLabels.length > 0) { %>
+      <div class="dash-carry">
+        <span class="text-body-secondary">Keeps its settings:</span>
+        <% carryLabels.forEach((label) => { %>
+        <span class="badge text-bg-secondary"><%= label %></span>
+        <% }) %>
+      </div>
+      <% } %>
+      <p class="text-body-secondary mb-4">Templates and formats carry over to the matching counters. This cannot be undone.</p>
+
+      <form method="post" action="/dashboard/guilds/<%= guild.id %>/panels" class="d-flex gap-2">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <input type="hidden" name="action" value="replace">
+        <input type="hidden" name="platform" value="<%= platform %>">
+        <a class="btn btn-soft" href="/dashboard/guilds/<%= guild.id %>/<%= platform %>">Cancel</a>
+        <button class="btn btn-danger" type="submit"><%= rebuild ? 'Rebuild panel' : 'Replace panel' %></button>
+      </form>
+    </div>
+  </main>
+
+  <script src="/vendor/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

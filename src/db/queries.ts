@@ -224,6 +224,10 @@ export async function deleteCounterRow(panelId: number, type: string): Promise<v
   await db.delete(counters).where(and(eq(counters.panelId, panelId), eq(counters.type, type)));
 }
 
+export async function deleteCounterRowById(counterId: number): Promise<void> {
+  await db.delete(counters).where(eq(counters.id, counterId));
+}
+
 // Clocks reset so the next tick fetches fresh numbers for the new source.
 export async function updatePanelSource(panelId: number, sourceId: string, sourceName: string): Promise<void> {
   await db
@@ -290,12 +294,16 @@ export async function setCounterFormat(counterId: number, numberFormat: 'compact
   await db.update(counters).set({ numberFormat }).where(eq(counters.id, counterId));
 }
 
-export async function setCounterEnabled(counterId: number, enabled: boolean): Promise<void> {
-  await db.update(counters).set({ enabled }).where(eq(counters.id, counterId));
+export async function setCounterSettings(
+  counterId: number,
+  settings: { template: string | null; numberFormat: 'compact' | 'full'; enabled: boolean },
+): Promise<void> {
+  const patch = settings.enabled ? { ...settings, reason: null } : settings;
+  await db.update(counters).set(patch).where(eq(counters.id, counterId));
 }
 
 /**
- * Successful setup and set-channel runs in this pacific day for one guild.
+ * Successful resolutions in this pacific day for one guild, any platform.
  * Failed and denied attempts spent nothing, so they never count.
  */
 export async function resolutionSpentToday(guildId: string): Promise<number> {
@@ -303,7 +311,10 @@ export async function resolutionSpentToday(guildId: string): Promise<number> {
     select count(*) as spent from command_usage
     where guild_id = ${guildId}
       and ok = true
-      and command in ('setup', 'set-channel')
+      and (
+        (command in ('setup', 'set-channel') and detail in ('youtube', 'twitch', 'kick'))
+        or (command = 'dashboard' and detail like 'resolve:%')
+      )
       and created_at >= date_trunc('day', now() at time zone 'America/Los_Angeles') at time zone 'America/Los_Angeles'
   `);
   const row = result.rows[0] as { spent?: string | number } | undefined;

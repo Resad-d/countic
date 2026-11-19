@@ -50,6 +50,7 @@ declare module 'express-session' {
   interface SessionData {
     user?: SessionUser;
     login?: LoginChallenge;
+    loginReturn?: string;
   }
 }
 

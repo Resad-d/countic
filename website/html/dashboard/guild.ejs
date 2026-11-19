@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+  <%- include('partials/head', { title }); %>
+</head>
+
+<body class="dash-body">
+  <%- include('partials/header', { guild }); %>
+
+  <main class="dash-page">
+    <h1 class="visually-hidden"><%= guild.name %></h1>
+    <div class="dash-page-tabs">
+      <%- include('partials/tabs', { guildId: guild.id, active: 'home', panels }); %>
+    </div>
+    <% if (flash) { %>
+    <div class="dash-toasts">
+      <div class="toast <%= flash.kind === 'ok' ? 'dash-toast-ok' : 'dash-toast-error' %>" role="status" aria-live="polite" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body"><%= flash.text %></div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      </div>
+    </div>
+    <% } %>
+
+    <% if (unreachable) { %>
+    <div class="alert alert-warning alert-dismissible fade show">
+      Could not reach the bot, it may be restarting. Refresh in a moment.
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <% } %>
+
+    <% if (botMissing) { %>
+    <div class="alert alert-warning alert-dismissible fade show">
+      Countic is not in this server yet. <a class="alert-link" href="/add?guild_id=<%= guild.id %>">Invite it</a> to manage panels.
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <% } %>
+
+    <div class="dash-home-grid">
+      <% panels.forEach((panel) => { %>
+      <a class="dash-home-card dash-platform-<%= panel.platform %>" href="/dashboard/guilds/<%= guild.id %>/<%= panel.platform %>">
+        <span class="dash-platform-chip"><img src="<%= panel.icon %>" width="26" height="26" alt=""></span>
+        <div class="dash-home-info">
+          <div class="dash-home-name">
+            <strong><%= panel.label %></strong>
+            <% if (panel.exists && panel.enabled) { %>
+            <span class="dash-badge dash-badge-live">Live</span>
+            <% } else if (panel.exists) { %>
+            <span class="dash-badge dash-badge-off">Disabled</span>
+            <% } %>
+          </div>
+          <% if (panel.exists) { %>
+          <% if (panel.sourceName) { %>
+          <span class="dash-home-source"><%= panel.sourceName %></span>
+          <% } %>
+          <% const statCounters = panel.counters.filter((counter) => counter.type !== 'category'); %>
+          <span class="dash-home-meta">
+            <%= statCounters.length %> counter<%= statCounters.length === 1 ? '' : 's' %><% if (panel.lastChecked) { %> · Updated <%= panel.lastChecked %><% } %>
+          </span>
+          <% if (panel.reason) { %>
+          <span class="dash-reason"><%= panel.reason %></span>
+          <% } %>
+          <% } else { %>
+          <span class="dash-home-source">Not set up</span>
+          <% } %>
+        </div>
+        <span class="dash-home-go" aria-hidden="true">&rsaquo;</span>
+      </a>
+      <% }) %>
+    </div>
+  </main>
+
+  <script src="/vendor/bootstrap.bundle.min.js"></script>
+  <script src="/js/dashboard.js"></script>
+</body>
+
+</html>

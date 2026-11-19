@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+  <%- include('partials/head', { title }); %>
+</head>
+
+<body class="dash-body">
+  <%- include('partials/header', { guild }); %>
+
+  <main class="dash-page">
+    <div class="dash-page-tabs">
+      <%- include('partials/tabs', { guildId: guild.id, active: platform, panels }); %>
+    </div>
+
+    <% if (flash) { %>
+    <div class="dash-toasts">
+      <div class="toast <%= flash.kind === 'ok' ? 'dash-toast-ok' : 'dash-toast-error' %>" role="status" aria-live="polite" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body"><%= flash.text %></div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      </div>
+    </div>
+    <% } %>
+
+    <% if (unreachable) { %>
+    <div class="alert alert-warning alert-dismissible fade show">
+      Could not reach the bot, it may be restarting. Refresh in a moment.
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <% } %>
+
+    <% if (botMissing) { %>
+    <div class="alert alert-warning alert-dismissible fade show">
+      Countic is not in this server yet. <a class="alert-link" href="/add?guild_id=<%= guild.id %>">Invite it</a> to manage panels.
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <% } %>
+
+    <div class="dash-hero dash-platform-<%= platform %>">
+      <span class="dash-hero-chip"><img src="<%= panel.icon %>" width="30" height="30" alt=""></span>
+      <div class="dash-hero-info">
+        <div class="dash-hero-title">
+          <h1 class="h4 fw-bold mb-0"><%= panel.label %></h1>
+          <% if (panel.exists) { %>
+          <% if (panel.enabled) { %>
+          <span class="dash-badge dash-badge-live">Live</span>
+          <% } else { %>
+          <span class="dash-badge dash-badge-off">Disabled</span>
+          <% } %>
+          <% } else { %>
+          <span class="dash-badge dash-badge-none">Not set up</span>
+          <% } %>
+        </div>
+        <% if (panel.exists && panel.sourceName) { %>
+        <div class="dash-hero-source"><%= panel.sourceName %></div>
+        <% } %>
+      </div>
+      <% if ((panel.exists && panel.lastChecked) || panel.reason) { %>
+      <div class="dash-hero-meta">
+        <% if (panel.exists && panel.lastChecked) { %>
+        <span>Updated <%= panel.lastChecked %></span>
+        <% } %>
+        <% if (panel.reason) { %>
+        <span class="dash-reason"><%= panel.reason %></span>
+        <% } %>
+      </div>
+      <% } %>
+    </div>
+
+    <% if (resolved && resolved.platform === platform) { %>
+    <div class="dash-resolved">
+      <div class="dash-resolved-info">
+        <span class="text-body-secondary">Found:</span>
+        <strong><%= resolved.sourceName %></strong>
+        <% if (panel.exists) { %>
+        <span class="dash-resolved-hint">Keep channels updates the source in place, Replace panel rebuilds the channels.</span>
+        <% } %>
+      </div>
+      <div class="dash-resolved-actions">
+        <a class="btn btn-sm btn-secondary" href="/dashboard/guilds/<%= guild.id %>/<%= platform %>">Cancel</a>
+        <% if (panel.exists) { %>
+        <form method="post" action="/dashboard/guilds/<%= guild.id %>/panels">
+          <input type="hidden" name="_csrf" value="<%= csrf %>">
+          <input type="hidden" name="action" value="source">
+          <input type="hidden" name="platform" value="<%= platform %>">
+          <input type="hidden" name="sourceId" value="<%= resolved.sourceId %>">
+          <input type="hidden" name="sourceName" value="<%= resolved.sourceName %>">
+          <button class="btn btn-sm btn-soft" type="submit">Keep channels</button>
+        </form>
+        <% } %>
+        <form method="post" action="/dashboard/guilds/<%= guild.id %>/panels">
+          <input type="hidden" name="_csrf" value="<%= csrf %>">
+          <input type="hidden" name="action" value="create">
+          <input type="hidden" name="platform" value="<%= platform %>">
+          <input type="hidden" name="sourceId" value="<%= resolved.sourceId %>">
+          <input type="hidden" name="sourceName" value="<%= resolved.sourceName %>">
+          <button class="btn btn-sm btn-success" type="submit"><%= panel.exists ? 'Replace panel' : 'Create panel' %></button>
+        </form>
+      </div>
+    </div>
+    <% } %>
+
+    <% if (panel.exists) { %>
+    <% if (panel.stats.length > 0) { %>
+    <div class="dash-stats">
+      <% panel.stats.forEach((stat) => { %>
+      <div class="dash-stat">
+        <span class="dash-stat-value"><%= stat.value %></span>
+        <span class="dash-stat-label"><%= stat.label %></span>
+      </div>
+      <% }) %>
+    </div>
+    <% } %>
+
+    <% const categoryCounters = panel.counters.filter((counter) => counter.type === 'category'); %>
+    <% const statCounters = panel.counters.filter((counter) => counter.type !== 'category'); %>
+    <section class="dash-panel-card">
+      <% if (categoryCounters.length > 0) { %>
+      <div class="dash-category-row">
+        <%- include('partials/counter', { counter: categoryCounters[0] }); %>
+        <div class="dash-preview-card">
+          <span class="dash-preview-label">In Discord</span>
+          <%- include('partials/preview', { preview }); %>
+        </div>
+      </div>
+      <% } %>
+      <% if (statCounters.length > 0) { %>
+      <h2 class="dash-section-title">Counters</h2>
+      <div class="dash-counters">
+        <% statCounters.forEach((counter) => { %>
+        <%- include('partials/counter', { counter }); %>
+        <% }) %>
+      </div>
+      <% } %>
+    </section>
+
+    <section class="dash-panel-card">
+      <h2 class="dash-section-title">Source</h2>
+      <form method="post" action="/dashboard/guilds/<%= guild.id %>/resolve" class="dash-setup">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <input type="hidden" name="platform" value="<%= platform %>">
+        <input class="form-control form-control-sm" type="text" name="query" maxlength="100" autocomplete="off" required placeholder="New channel name, handle or link" aria-label="New channel">
+        <button class="btn btn-sm btn-soft" type="submit">Find</button>
+      </form>
+      <p class="text-body-secondary small mt-2 mb-0">Find a different channel to track, then replace the panel or keep the existing channels.</p>
+
+      <div class="dash-manage">
+        <div class="dash-manage-row">
+          <div>
+            <strong>Recreate</strong>
+            <p>Deletes the channels and builds them again for <%= panel.sourceName ?? 'the current source' %>, templates and formats carry over.</p>
+          </div>
+          <form method="post" action="/dashboard/guilds/<%= guild.id %>/panels">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <input type="hidden" name="action" value="recreate">
+            <input type="hidden" name="platform" value="<%= platform %>">
+            <button class="btn btn-sm btn-soft" type="submit">Recreate</button>
+          </form>
+        </div>
+        <div class="dash-manage-row dash-manage-danger">
+          <div>
+            <strong>Delete panel</strong>
+            <p>Removes the panel, its counter channels and every setting. This cannot be undone.</p>
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#delete-panel">Delete panel</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="modal fade" id="delete-panel" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Delete the <%= panel.label %> panel?</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            This removes <%= panel.counters.length %> counter channel(s) and every setting for <%= panel.sourceName ?? 'this source' %>. This cannot be undone.
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <form method="post" action="/dashboard/guilds/<%= guild.id %>/panels" id="teardown-form">
+              <input type="hidden" name="_csrf" value="<%= csrf %>">
+              <input type="hidden" name="action" value="teardown">
+              <input type="hidden" name="platform" value="<%= platform %>">
+            </form>
+            <button type="submit" form="teardown-form" class="btn btn-sm btn-danger">Delete panel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="delete-counter" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Delete the <span id="delete-counter-label"></span> counter?</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            This removes the counter channel and its saved template. The rest of the panel stays.
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <form method="post" action="/dashboard/guilds/<%= guild.id %>/counters" id="delete-counter-form">
+              <input type="hidden" name="_csrf" value="<%= csrf %>">
+              <input type="hidden" name="action" value="delete">
+              <input type="hidden" name="platform" value="<%= platform %>">
+              <input type="hidden" name="counterId" id="delete-counter-id" value="">
+            </form>
+            <button type="submit" form="delete-counter-form" class="btn btn-sm btn-danger">Delete counter</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <% } else if (!(resolved && resolved.platform === platform)) { %>
+    <section class="dash-panel-card dash-setup-card">
+      <div class="dash-setup-grid">
+        <div class="dash-setup-main">
+          <h2 class="dash-section-title">Set up a <%= panel.label %> panel</h2>
+          <p class="dash-setup-lede">Track a channel and Countic shows its live stats as voice channel names in your server.</p>
+          <form method="post" action="/dashboard/guilds/<%= guild.id %>/resolve" class="dash-setup dash-setup-lg">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <input type="hidden" name="platform" value="<%= platform %>">
+            <input class="form-control" type="text" name="query" maxlength="100" autocomplete="off" required placeholder="Channel name, handle or link" aria-label="Channel">
+            <button class="btn btn-soft" type="submit">Find</button>
+          </form>
+          <p class="dash-setup-hint">A URL, an @handle or the channel ID all work.</p>
+        </div>
+        <div class="dash-preview-card">
+          <span class="dash-preview-label">In Discord</span>
+          <%- include('partials/preview', { preview }); %>
+        </div>
+      </div>
+    </section>
+    <% } %>
+  </main>
+
+  <script src="/vendor/bootstrap.bundle.min.js"></script>
+  <script src="/js/dashboard.js"></script>
+</body>
+
+</html>

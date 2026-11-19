@@ -1,0 +1,43 @@
+<header class="dash-header">
+  <a href="/" class="dash-logo">
+    <img src="/img/logo.svg" width="28" height="28" alt="">
+    <span>Countic</span>
+  </a>
+
+  <% if (typeof guild !== 'undefined' && guild) { %>
+  <div class="dash-header-guild">
+    <% if (guild.icon) { %>
+    <img src="<%= guild.icon %>" width="26" height="26" alt="">
+    <% } else { %>
+    <span class="dash-initial" aria-hidden="true"><%= guild.initial %></span>
+    <% } %>
+    <span class="dash-header-guild-name"><%= guild.name %></span>
+    <a class="dash-back-btn" href="/dashboard" aria-label="Back to all servers" title="Back to all servers">
+      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+        <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8Z" />
+      </svg>
+    </a>
+  </div>
+  <% } %>
+
+  <div class="dash-header-user">
+    <% if (user) { %>
+    <div class="dropdown">
+      <button type="button" class="btn p-0 border-0" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+        <img src="<%= user.avatarUrl %>" width="34" height="34" class="rounded-circle" alt="User avatar">
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li>
+          <h6 class="dropdown-header fw-bold"><%= user.username %></h6>
+        </li>
+        <li><a class="dropdown-item" href="/dashboard">Dashboard</a></li>
+        <li><a class="dropdown-item" href="/guide">Guides</a></li>
+        <li>
+          <hr class="dropdown-divider">
+        </li>
+        <li><a class="dropdown-item text-danger" href="/logout">Log out</a></li>
+      </ul>
+    </div>
+    <% } %>
+  </div>
+</header>

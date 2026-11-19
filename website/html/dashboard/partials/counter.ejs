@@ -1,0 +1,43 @@
+<form method="post" action="/dashboard/guilds/<%= guild.id %>/counters" id="counter-<%= counter.id %>" class="dash-counter<%= counter.enabled ? '' : ' dash-counter-off' %>">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <input type="hidden" name="action" value="save">
+  <input type="hidden" name="platform" value="<%= platform %>">
+  <input type="hidden" name="counterId" value="<%= counter.id %>">
+  <div class="dash-counter-top">
+    <span class="dash-counter-name"><%= counter.label %></span>
+    <% if (counter.reason && !counter.enabled) { %>
+    <span class="dash-reason"><%= counter.reason %></span>
+    <% } %>
+    <span class="dash-counter-current" title="Current channel name"><%= counter.value %></span>
+  </div>
+  <div class="dash-counter-controls">
+    <label class="dash-field dash-field-template">
+      <span>Template [<%= counter.type === 'category' ? 'name' : counter.type %>]</span>
+      <input class="form-control form-control-sm" type="text" name="template" maxlength="100" autocomplete="off" value="<%= counter.template %>" placeholder="<%= counter.defaultTemplate %>">
+    </label>
+    <% if (counter.type === 'category') { %>
+    <input type="hidden" name="numberFormat" value="<%= counter.numberFormat %>">
+    <% } else { %>
+    <label class="dash-field dash-field-format">
+      <span>Format</span>
+      <select class="form-select form-select-sm" name="numberFormat">
+        <option value="compact" <%- counter.numberFormat === 'compact' ? 'selected' : '' %>>Compact (1.23K)</option>
+        <option value="full" <%- counter.numberFormat === 'full' ? 'selected' : '' %>>Full (1,234)</option>
+      </select>
+    </label>
+    <% } %>
+    <div class="dash-field dash-field-state">
+      <span>Status</span>
+      <div class="dash-toggle" role="radiogroup" aria-label="Counter state">
+        <input class="dash-toggle-input" type="radio" name="enabled" id="enabled-on-<%= counter.id %>" value="true" <%- counter.enabled ? 'checked' : '' %>>
+        <label class="dash-toggle-label" for="enabled-on-<%= counter.id %>">On</label>
+        <input class="dash-toggle-input" type="radio" name="enabled" id="enabled-off-<%= counter.id %>" value="false" <%- counter.enabled ? '' : 'checked' %>>
+        <label class="dash-toggle-label" for="enabled-off-<%= counter.id %>">Off</label>
+      </div>
+    </div>
+    <button class="btn btn-sm btn-soft" type="submit">Save</button>
+    <% if (counter.type !== 'category') { %>
+    <button type="button" class="btn btn-sm btn-outline-danger" data-counter-delete data-counter-id="<%= counter.id %>" data-counter-label="<%= counter.label %>">Delete</button>
+    <% } %>
+  </div>
+</form>

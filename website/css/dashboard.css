@@ -1,0 +1,935 @@
+/* Dashboard styles. */
+
+.dash-platform-youtube {
+  --dash-platform: #cc0000;
+}
+
+.dash-platform-twitch {
+  --dash-platform: #9146ff;
+}
+
+.dash-platform-kick {
+  --dash-platform: #15803d;
+}
+
+.dash-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  text-shadow: none;
+}
+
+.dash-guild-card:focus-visible,
+.dash-home-card:focus-visible,
+.dash-back-btn:focus-visible {
+  outline: 2px solid var(--countic-accent);
+  outline-offset: 2px;
+}
+
+.dash-tabs .nav-link:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 1px;
+}
+
+/* Header */
+
+.dash-header {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(23, 25, 27, 0.92);
+  backdrop-filter: blur(8px);
+}
+
+.dash-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  color: inherit;
+  text-decoration: none;
+}
+
+.dash-header-guild {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  grid-column: 2;
+  min-width: 0;
+}
+
+.dash-header-guild img,
+.dash-header-guild .dash-initial {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dash-header-guild-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 220px;
+}
+
+.dash-back-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 0.45rem;
+  color: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.dash-back-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dash-header-user {
+  grid-column: 3;
+  justify-self: end;
+}
+
+/* Page Tabs */
+
+.dash-page-tabs {
+  display: flex;
+  justify-content: center;
+  margin: 0.25rem 0 1.25rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.dash-tabs {
+  flex-wrap: nowrap;
+  margin-bottom: 0;
+  gap: 0.15rem;
+  padding: 0.2rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+}
+
+.dash-tabs .nav-link {
+  gap: 0.45rem;
+  padding: 0.3rem 0.85rem;
+  border-radius: 999px;
+  background: transparent;
+  border-color: transparent;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.dash-tabs .nav-link:not(.active):hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: transparent;
+}
+
+.dash-tabs img {
+  flex-shrink: 0;
+}
+
+.nav-pills .pill-home.active {
+  background-color: var(--countic-accent);
+  border-color: var(--countic-accent);
+  color: #fff;
+}
+
+.dash-tab-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #57f287;
+  flex-shrink: 0;
+}
+
+/* Shared Main Areas */
+
+.dash-main {
+  flex: 1;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem 1rem 3rem;
+}
+
+.dash-page {
+  flex: 1;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* Status Dots */
+
+.dash-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.4;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.dash-badge::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.dash-badge-live {
+  color: #57f287;
+}
+
+.dash-badge-off {
+  color: #f68282;
+}
+
+.dash-badge-none {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Server Picker */
+
+.dash-guild-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 0.75rem;
+}
+
+.dash-guild-card {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.9rem 1rem;
+  border-radius: 0.75rem;
+  background: #1e2124;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  color: inherit;
+  text-decoration: none;
+  min-width: 0;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.dash-guild-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--countic-accent);
+}
+
+.dash-guild-card img,
+.dash-initial {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dash-initial {
+  display: inline-grid;
+  place-items: center;
+  background: var(--countic-accent);
+  font-weight: 600;
+}
+
+.dash-guild-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.dash-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: rgba(255, 255, 255, 0.55);
+  border: 1px dashed rgba(255, 255, 255, 0.14);
+  border-radius: 0.85rem;
+}
+
+/* Home Cards */
+
+.dash-home-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 0.9rem;
+}
+
+.dash-home-card {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-color: color-mix(in srgb, var(--dash-platform, var(--countic-accent)) 30%, transparent);
+  background: #1e2124;
+  background: linear-gradient(120deg, color-mix(in srgb, var(--dash-platform, var(--countic-accent)) 12%, transparent), transparent 80%), #1e2124;
+  border-radius: 0.85rem;
+  padding: 1rem 1.1rem;
+  color: inherit;
+  text-decoration: none;
+  min-width: 0;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.dash-home-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--dash-platform, var(--countic-accent)) 55%, transparent);
+}
+
+.dash-home-card img {
+  flex-shrink: 0;
+}
+
+.dash-home-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.dash-home-name {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dash-home-source {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dash-home-meta {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.dash-home-go {
+  margin-left: auto;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.dash-home-card:hover .dash-home-go {
+  color: #fff;
+}
+
+/* Hero */
+
+.dash-platform-chip {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 0.65rem;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dash-hero {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  padding: 1.1rem 1.25rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-color: color-mix(in srgb, var(--dash-platform, var(--countic-accent)) 35%, transparent);
+  background: #1e2124;
+  background: linear-gradient(120deg, color-mix(in srgb, var(--dash-platform, var(--countic-accent)) 12%, transparent), transparent 80%), #1e2124;
+}
+
+.dash-hero-chip {
+  display: inline-grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 0.75rem;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dash-hero-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.dash-hero-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+  margin-left: auto;
+  text-align: right;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.8rem;
+}
+
+.dash-hero-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.dash-hero-source {
+  margin-top: 0.15rem;
+  font-size: 1rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.dash-reason {
+  display: inline-block;
+  color: #f0ad4e;
+  font-size: 0.78rem;
+}
+
+/* Stats */
+
+.dash-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+}
+
+.dash-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.8rem 1rem;
+  border-radius: 0.65rem;
+  background: #1e2124;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.dash-preview-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 360px;
+  margin: 0 auto 1.25rem;
+  padding: 0.75rem;
+  background: #1e2124;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 0.65rem;
+}
+
+.dash-preview-card .dash-preview-label {
+  text-align: center;
+}
+
+.dash-preview-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.dash-preview-card .dash-preview {
+  border: 0;
+  background: rgba(255, 255, 255, 0.03);
+  max-width: none;
+  flex: 1;
+}
+
+.dash-stat-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.dash-stat-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Cards */
+
+.dash-panel-card {
+  position: relative;
+  background: #1e2124;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 0.85rem;
+  padding: 1rem 1.15rem 1.15rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Numbers in a column stay aligned while counters refresh. */
+.dash-stat-value,
+.dash-counter-current {
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-body .alert {
+  border-radius: 0.6rem;
+}
+
+/* Toasts, Bootstrap Toast instances shown from dashboard.js. */
+.dash-toasts {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 1090;
+  width: min(360px, calc(100vw - 2rem));
+}
+
+.dash-toasts .toast {
+  background: #1e2124;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.6rem;
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.45);
+}
+
+.dash-toasts .btn-close:focus,
+.dash-toasts .btn-close:focus-visible {
+  box-shadow: none;
+  outline: none;
+}
+
+.dash-toasts .dash-toast-ok {
+  border-left: 3px solid #57f287;
+}
+
+.dash-toasts .dash-toast-error {
+  border-left: 3px solid #f68282;
+}
+
+.dash-body .modal-content {
+  border-radius: 0.75rem;
+}
+
+.dash-section-title {
+  margin: 1.35rem 0 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.dash-panel-card > .dash-section-title:first-child {
+  margin-top: 0;
+}
+
+/* Discord preview */
+
+.dash-preview {
+  background: #2b2d31;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0.55rem;
+  padding: 0.5rem;
+  max-width: 320px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.dash-preview-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.55rem;
+  border-radius: 0.3rem;
+  color: #949ba4;
+  font-size: 0.95rem;
+  font-weight: 500;
+  min-width: 0;
+  cursor: default;
+}
+
+.dash-preview-row:hover {
+  background: #35373c;
+  color: #dbdee1;
+}
+
+.dash-preview-row span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dash-preview-row svg {
+  flex-shrink: 0;
+}
+
+.dash-preview-cat {
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.dash-preview-cat:hover {
+  background: transparent;
+  color: #949ba4;
+}
+
+.dash-preview .dash-preview-cat:first-child {
+  margin-top: 0;
+}
+
+.dash-preview-off {
+  opacity: 0.45;
+}
+
+/* Counter Rows */
+
+.dash-counters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+  gap: 0.6rem;
+}
+
+/* Category Row */
+.dash-category-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.6rem;
+  align-items: stretch;
+}
+
+.dash-category-row .dash-preview-card {
+  margin: 0;
+  max-width: none;
+}
+
+.dash-counter {
+  padding: 0.75rem 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0.65rem;
+  background: rgba(255, 255, 255, 0.03);
+  scroll-margin-top: 4.5rem;
+}
+
+/* Save redirects and fetch acks target the counter, the glow is the ack. */
+.dash-counter:target,
+.dash-counter-flash {
+  border-color: rgba(var(--countic-accent-rgb), 0.55);
+  background: rgba(var(--countic-accent-rgb), 0.07);
+}
+
+.dash-counter-off .dash-counter-top,
+.dash-counter-off .dash-counter-controls {
+  opacity: 0.55;
+}
+
+.dash-counter-top {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.dash-counter-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  min-width: 0;
+}
+
+.dash-counter-current {
+  margin-left: auto;
+  max-width: 50%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.82rem;
+  text-align: right;
+}
+
+.dash-counter-controls {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.dash-counter-controls > .btn {
+  grid-column: span 3;
+  align-self: end;
+}
+
+.dash-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.dash-field > span {
+  padding-left: 0.2rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.dash-field-template {
+  grid-column: span 6;
+}
+
+.dash-field-format {
+  grid-column: span 3;
+}
+
+.dash-field-state {
+  grid-column: span 3;
+}
+
+.dash-field-format .form-select {
+  width: 100%;
+}
+
+.dash-toggle {
+  position: relative;
+  display: inline-flex;
+  gap: 0.15rem;
+  padding: 0.15rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+}
+
+.dash-toggle-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.dash-toggle-label {
+  flex: 1 1 0;
+  padding: 0.22rem 0.35rem;
+  border-radius: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.dash-toggle-input:checked + .dash-toggle-label {
+  background: var(--countic-accent);
+  color: #fff;
+}
+
+.dash-toggle-input:focus-visible + .dash-toggle-label {
+  outline: 2px solid var(--countic-accent);
+  outline-offset: 1px;
+}
+
+.dash-body .form-control:focus,
+.dash-body .form-select:focus {
+  border-color: var(--countic-accent);
+  box-shadow: none;
+}
+
+.dash-body .form-control:-webkit-autofill {
+  -webkit-text-fill-color: #fff;
+  -webkit-box-shadow: 0 0 0 1000px #1e2124 inset;
+}
+
+/* Setup And Danger Areas */
+
+.dash-setup-card {
+  margin-top: 1.25rem;
+  padding: 1.5rem;
+}
+
+.dash-setup-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.dash-setup-grid .dash-preview-card {
+  margin: 0;
+}
+
+/* Every platform gets the same preview height, the row count must not drive the card. */
+.dash-setup-grid .dash-preview {
+  min-height: 10rem;
+}
+
+.dash-setup-lede {
+  margin: 0 0 1rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.dash-setup-hint {
+  margin: 0.75rem 0 0;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.dash-setup-lg {
+  max-width: 560px;
+}
+
+.dash-setup-lg .form-control {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.95rem;
+}
+
+.dash-setup-lg .btn {
+  padding: 0.5rem 1.1rem;
+}
+
+.dash-setup {
+  display: flex;
+  gap: 0.5rem;
+  max-width: 460px;
+}
+
+.dash-resolved {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 0.6rem;
+  background: rgba(88, 101, 242, 0.12);
+  border: 1px solid rgba(88, 101, 242, 0.35);
+}
+
+.dash-resolved-info {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.dash-resolved-hint {
+  display: block;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.dash-resolved-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.dash-carry {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.dash-manage {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 1.25rem;
+}
+
+.dash-manage-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0.6rem;
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 0.85rem;
+}
+
+.dash-manage-row strong {
+  font-size: 0.9rem;
+}
+
+.dash-manage-row p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.8rem;
+}
+
+.dash-manage-row.dash-manage-danger {
+  background: rgba(220, 53, 69, 0.07);
+  border-color: rgba(220, 53, 69, 0.22);
+}
+
+/* Mobile */
+
+@media (max-width: 767.98px) {
+  .dash-counter-current {
+    max-width: 100%;
+  }
+
+  .dash-category-row {
+    grid-template-columns: 1fr;
+  }
+
+  .dash-setup-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dash-hero-meta {
+    margin-left: 0;
+    align-items: flex-start;
+    text-align: left;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .dash-header {
+    gap: 0.75rem;
+  }
+
+  .dash-header-guild-name {
+    max-width: 110px;
+  }
+}
+
+/* Reduced Motion */
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-guild-card,
+  .dash-home-card {
+    transition: none;
+  }
+
+  .dash-guild-card:hover,
+  .dash-home-card:hover {
+    transform: none;
+  }
+}

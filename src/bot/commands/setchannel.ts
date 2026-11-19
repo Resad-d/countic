@@ -87,6 +87,7 @@ export const setChannel: CommandDef = {
       await interaction.editReply(resolveFailureMessage(ctx.t, input, platform, resolved.failure));
       return;
     }
+    ctx.auditDetail = platform;
     await updatePanelSource(panelRow.id, resolved.sourceId, resolved.sourceName);
     const content = ctx.t('setchannel.success', { source: resolved.sourceName });
     await interaction.editReply(ctx.t('common.done'));

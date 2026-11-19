@@ -213,6 +213,7 @@ export const setup: CommandDef = {
       await interaction.editReply(resolveFailureMessage(ctx.t, input, platform, resolved.failure));
       return;
     }
+    ctx.auditDetail = platform;
     const existing = await selectPanel(guildId, platform);
     if (existing) {
       const oldCounters = await selectCountersWithReasons([existing.id]);

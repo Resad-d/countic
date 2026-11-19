@@ -66,7 +66,7 @@ if (!config.DISCORD_TOKEN) {
     config.METRICS_ENABLED && (client.shard?.ids.includes(0) ?? true)
       ? startMetricsServer(config.BOT_METRICS_PORT)
       : undefined;
-  const transportServer = startTransport(client, config.BOT_TRANSPORT_PORT);
+  const transportServer = startTransport(client, providers, config.BOT_TRANSPORT_PORT);
 
   process.on('unhandledRejection', (err) => {
     log.error({ err }, 'unhandled rejection');

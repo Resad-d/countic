@@ -11,8 +11,9 @@ import { config } from '../lib/config.js';
 import { childLogger } from '../lib/logger.js';
 import { startMetricsServer } from '../lib/metrics.js';
 import { assertWebAuthConfig, completeLogin, startLogin } from './auth.js';
+import { dashboardRouter } from './dashboard.js';
 
-/** Public website and Discord OAuth login, the dashboard arrives with its own commit. */
+/** Public website, Discord OAuth login and the dashboard. */
 
 const log = childLogger('web');
 const app = express();
@@ -42,6 +43,8 @@ app.use(
   }),
 );
 
+app.use(express.urlencoded({ extended: false }));
+
 const staticDir = (dir: string) => path.resolve('website', dir);
 app.use('/css', express.static(staticDir('css'), { index: false, maxAge: '1d' }));
 app.use('/js', express.static(staticDir('js'), { index: false, maxAge: '1d' }));
@@ -67,6 +70,7 @@ app.use(session({
 
 app.use((req, res, next) => {
   res.locals.user = req.session.user ?? null;
+  res.locals.currentPath = req.originalUrl;
   next();
 });
 
@@ -107,7 +111,7 @@ app.get('/robots.txt', (_req, res) => {
 });
 
 const INVITE_PERMISSIONS = '275146729488';
-app.get('/add', (_req, res) => {
+app.get('/add', (req, res) => {
   if (!config.DISCORD_CLIENT_ID) {
     res.status(503).json({ error: 'client id not configured' });
     return;
@@ -117,6 +121,11 @@ app.get('/add', (_req, res) => {
     permissions: INVITE_PERMISSIONS,
     scope: 'applications.commands bot',
   });
+  // Preselects the server in Discord when the dashboard sends the id along.
+  const guildId = typeof req.query.guild_id === 'string' && /^\d{17,20}$/.test(req.query.guild_id) ? req.query.guild_id : null;
+  if (guildId) {
+    params.set('guild_id', guildId);
+  }
   res.redirect(`https://discord.com/oauth2/authorize?${params.toString()}`);
 });
 
@@ -129,10 +138,13 @@ const loginLimiter = rateLimit({
 });
 
 app.get('/login', loginLimiter, (req, res) => {
+  const requested = typeof req.query.return === 'string' ? req.query.return : '';
+  const target = safePath(requested) ? requested : '/';
   if (req.session.user) {
-    res.redirect('/');
+    res.redirect(target);
     return;
   }
+  req.session.loginReturn = target;
   res.redirect(startLogin(req.session));
 });
 
@@ -142,9 +154,13 @@ app.get('/callback', async (req, res) => {
     res.redirect('/');
     return;
   }
+  // Stored at /login, completeLogin regenerates the session after this read.
+  const returnTo = typeof req.session.loginReturn === 'string' && safePath(req.session.loginReturn)
+    ? req.session.loginReturn
+    : '/';
   try {
     await completeLogin(req, code, state);
-    res.redirect('/');
+    res.redirect(returnTo);
   } catch (err) {
     log.warn({ err }, 'login failed');
     res.redirect('/');
@@ -157,6 +173,8 @@ app.get('/logout', (req, res) => {
     res.redirect('/');
   });
 });
+
+app.use('/dashboard', dashboardRouter);
 
 app.use((_req, res) => {
   res.status(404).render('404');
@@ -199,4 +217,9 @@ function resolveTrustProxy(value: string | undefined): number | string {
     return Number(value);
   }
   return value;
+}
+
+// Only same-site relative paths may be return targets, everything else goes home.
+function safePath(value: string): boolean {
+  return value.startsWith('/') && !value.startsWith('//') && !value.includes('\\') && value.length <= 512;
 }

@@ -1,0 +1,16 @@
+<ul class="nav nav-pills dash-tabs flex-nowrap" aria-label="Panel pages">
+  <li class="nav-item">
+    <a class="nav-link pill-home<%= active === 'home' ? ' active' : '' %>" href="/dashboard/guilds/<%= guildId %>"<%- active === 'home' ? ' aria-current="page"' : '' %>>Home</a>
+  </li>
+  <% panels.forEach((panel) => { %>
+  <li class="nav-item">
+    <a class="nav-link pill-<%= panel.platform %><%= active === panel.platform ? ' active' : '' %>" href="/dashboard/guilds/<%= guildId %>/<%= panel.platform %>"<%- active === panel.platform ? ' aria-current="page"' : '' %>>
+      <img src="<%= panel.icon %>" width="18" height="18" alt="">
+      <span><%= panel.label %></span>
+      <% if (panel.exists) { %>
+      <span class="dash-tab-dot" aria-hidden="true"></span>
+      <% } %>
+    </a>
+  </li>
+  <% }) %>
+</ul>
