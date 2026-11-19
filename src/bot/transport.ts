@@ -82,6 +82,12 @@ const bodySchema = z.discriminatedUnion('action', [
   }),
 ]);
 
+const SOURCE_ID: Record<Platform, RegExp> = {
+  youtube: /^UC[a-zA-Z0-9_-]{22}$/,
+  twitch: /^\d{1,20}$/,
+  kick: /^\d{1,20}$/,
+};
+
 const resolveSchema = z.object({
   guildId: SNOWFLAKE,
   platform: PLATFORMS,
@@ -197,6 +203,9 @@ async function handleMutation(client: Client, body: unknown): Promise<{ status: 
     return { status: 400, payload: { error: parsed.error.issues[0]?.message ?? 'invalid body' } };
   }
   const input = parsed.data;
+  if ('sourceId' in input && !SOURCE_ID[input.platform].test(input.sourceId)) {
+    return { status: 400, payload: { error: 'invalid source id' } };
+  }
   if (input.action === 'teardown') {
     const panel = await selectPanel(input.guildId, input.platform);
     if (!panel) {

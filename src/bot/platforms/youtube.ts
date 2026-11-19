@@ -102,8 +102,12 @@ export function createYoutubeProvider(apiKey: string): PlatformProvider {
           }
         } catch (err) {
           // A batch shares one API call, so it fails as one.
-          const failure = err instanceof PlatformError ? err.failure : 'transient';
+          let failure = err instanceof PlatformError ? err.failure : 'transient';
           const message = err instanceof Error ? err.message : String(err);
+          // A failed multi id request says nothing about any single id, never disable the batch.
+          if (batch.length > 1 && failure === 'permanent') {
+            failure = 'transient';
+          }
           for (const id of batch) {
             results.set(id, { failure, message });
           }

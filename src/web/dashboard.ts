@@ -39,6 +39,7 @@ const PLATFORM_ENUM = z.enum(['youtube', 'twitch', 'kick']);
 const MANAGE_CHANNELS = 16n;
 const RESOLVE_FAIL_TEXT = 'Type a channel name first.';
 const REPLACE_TTL_MS = 30_000;
+const RESOLVED_TTL_MS = 10 * 60_000;
 
 type DashFlash =
   | { kind: 'ok'; text: string }
@@ -54,9 +55,18 @@ interface DashPending {
   expires: number;
 }
 
+interface DashResolved {
+  guildId: string;
+  platform: Platform;
+  sourceId: string;
+  sourceName: string;
+  expires: number;
+}
+
 declare module 'express-session' {
   interface SessionData {
     dashPending?: DashPending;
+    dashResolved?: DashResolved;
     dashFlash?: DashFlash;
     csrf?: string;
   }
@@ -181,6 +191,28 @@ function timeAgo(iso: string | null): string {
     return `${hours}h ago`;
   }
   return `${Math.floor(hours / 24)}d ago`;
+}
+
+/**
+ * The create and source actions only accept source values the resolve step stored.
+ * Consuming on read makes each resolve usable exactly once.
+ */
+function consumeResolved(
+  req: Request,
+  guildId: string,
+  platform: Platform,
+): { sourceId: string; sourceName: string } | null {
+  const resolved = req.session.dashResolved;
+  delete req.session.dashResolved;
+  if (
+    !resolved ||
+    resolved.guildId !== guildId ||
+    resolved.platform !== platform ||
+    resolved.expires <= Date.now()
+  ) {
+    return null;
+  }
+  return { sourceId: resolved.sourceId, sourceName: resolved.sourceName };
 }
 
 function setFlash(req: Request, flash: DashFlash): void {
@@ -620,6 +652,13 @@ dashboardRouter.post('/guilds/:guildId/resolve', dashPostLimiter, async (req, re
       resolveSource({ guildId, platform: parsed.data.platform, query: parsed.data.query }),
     );
     await record(req, guildId, detail, true);
+    req.session.dashResolved = {
+      guildId,
+      platform: parsed.data.platform,
+      sourceId: resolved.sourceId,
+      sourceName: resolved.sourceName,
+      expires: Date.now() + RESOLVED_TTL_MS,
+    };
     if (resolved.alreadyTracked) {
       setFlash(req, { kind: 'ok', text: `${resolved.sourceName} is already tracked on this server.` });
     } else {
@@ -710,24 +749,31 @@ async function createOrConfirm(
 }
 
 async function handleCreate(req: Request, res: Response, guildId: string, input: CreateInput): Promise<void> {
+  const resolved = consumeResolved(req, guildId, input.platform);
+  if (!resolved) {
+    await record(req, guildId, 'create', false);
+    setFlash(req, { kind: 'error', text: 'Look up the channel again first.' });
+    res.redirect(platformPath(guildId, input.platform));
+    return;
+  }
   try {
     const outcome = await serialized(guildId, () =>
-      createOrConfirm(guildId, input.platform, input.sourceId, input.sourceName),
+      createOrConfirm(guildId, input.platform, resolved.sourceId, resolved.sourceName),
     );
     await record(req, guildId, 'create', true);
     if (outcome.kind === 'confirm') {
       req.session.dashPending = {
         guildId,
         platform: input.platform,
-        sourceId: input.sourceId,
-        sourceName: input.sourceName,
+        sourceId: resolved.sourceId,
+        sourceName: resolved.sourceName,
         carryOver: outcome.carryOver,
         expires: Date.now() + REPLACE_TTL_MS,
       };
       res.redirect(`${guildPath(guildId)}/replace/${input.platform}`);
       return;
     }
-    setFlash(req, { kind: 'ok', text: `Panel created for ${input.sourceName}.` });
+    setFlash(req, { kind: 'ok', text: `Panel created for ${resolved.sourceName}.` });
   } catch (err) {
     await record(req, guildId, 'create', false);
     setFlash(req, { kind: 'error', text: mutationErrorText(err) });
@@ -757,17 +803,24 @@ async function handleTeardown(req: Request, res: Response, guildId: string, plat
 type SourceInput = Extract<z.infer<typeof panelsForm>, { action: 'source' }>;
 
 async function handleSource(req: Request, res: Response, guildId: string, input: SourceInput): Promise<void> {
+  const resolved = consumeResolved(req, guildId, input.platform);
+  if (!resolved) {
+    await record(req, guildId, 'source', false);
+    setFlash(req, { kind: 'error', text: 'Look up the channel again first.' });
+    res.redirect(platformPath(guildId, input.platform));
+    return;
+  }
   try {
     await serialized(guildId, () =>
       updatePanelSource({
         guildId,
         platform: input.platform,
-        sourceId: input.sourceId,
-        sourceName: input.sourceName,
+        sourceId: resolved.sourceId,
+        sourceName: resolved.sourceName,
       }),
     );
     await record(req, guildId, 'source', true);
-    setFlash(req, { kind: 'ok', text: `Source changed to ${input.sourceName}, names refresh with the next update.` });
+    setFlash(req, { kind: 'ok', text: `Source changed to ${resolved.sourceName}, names refresh with the next update.` });
   } catch (err) {
     await record(req, guildId, 'source', false);
     setFlash(req, { kind: 'error', text: mutationErrorText(err) });
