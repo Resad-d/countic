@@ -1,4 +1,3 @@
-import { randomBytes, timingSafeEqual } from 'node:crypto';
 import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { rateLimit } from 'express-rate-limit';
@@ -11,6 +10,7 @@ import { DEFAULT_TEMPLATES, OFFLINE_LABEL, PENDING_LABEL, defaultNumberFormat } 
 import { counterText, en, translator } from '../lib/i18n/index.js';
 import { childLogger } from '../lib/logger.js';
 import type { GuildStub, SessionUser } from './auth.js';
+import { csrfOk, ensureCsrf } from './csrf.js';
 import {
   TransportError,
   createPanel,
@@ -68,7 +68,6 @@ declare module 'express-session' {
     dashPending?: DashPending;
     dashResolved?: DashResolved;
     dashFlash?: DashFlash;
-    csrf?: string;
   }
 }
 
@@ -245,21 +244,6 @@ function finish(
   }
   setFlash(req, { kind: ok ? 'ok' : 'error', text: message });
   res.redirect(redirect);
-}
-
-function ensureCsrf(req: Request): string {
-  req.session.csrf ??= randomBytes(32).toString('hex');
-  return req.session.csrf;
-}
-
-function csrfOk(req: Request): boolean {
-  const expected = req.session.csrf;
-  const body = req.body as { _csrf?: unknown } | undefined;
-  const provided = typeof body?._csrf === 'string' ? body._csrf : '';
-  if (!expected || provided.length !== expected.length) {
-    return false;
-  }
-  return timingSafeEqual(Buffer.from(expected), Buffer.from(provided));
 }
 
 interface Guarded {

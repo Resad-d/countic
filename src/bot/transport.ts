@@ -460,8 +460,8 @@ export function startTransport(client: Client, providers: Providers, port: numbe
       send(res, 500, { error: 'internal error' });
     });
   });
-  server.listen(port, () => {
-    log.info({ port }, 'transport listening (compose network only)');
+  server.listen(port, config.TRANSPORT_HOST, () => {
+    log.info({ port, host: config.TRANSPORT_HOST }, 'transport listening');
   });
   return server;
 }

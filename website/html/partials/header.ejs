@@ -32,7 +32,12 @@
         <li>
           <hr class="dropdown-divider">
         </li>
-        <li><a class="dropdown-item text-danger" href="/logout">Log out</a></li>
+        <li>
+          <form method="post" action="/logout">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <button class="dropdown-item text-danger" type="submit">Log out</button>
+          </form>
+        </li>
       </ul>
     </div>
     <% } else { %>

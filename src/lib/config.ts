@@ -20,6 +20,8 @@ const configSchema = z.object({
   // Bot refuses to start the transport without the secret, web refuses to call it.
   TRANSPORT_SECRET: z.preprocess(emptyToUndefined, z.string().min(32).optional()),
   BOT_TRANSPORT_PORT: z.coerce.number().int().min(1).max(65535).default(9103),
+  // Compose overrides this to cover the whole network, plain node stays loopback only.
+  TRANSPORT_HOST: z.string().default('127.0.0.1'),
   TRANSPORT_URL: z.url().default('http://localhost:9103'),
 
   SITE_URL: z.url().default('https://countic.app'),

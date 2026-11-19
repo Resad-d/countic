@@ -11,6 +11,7 @@ import { config } from '../lib/config.js';
 import { childLogger } from '../lib/logger.js';
 import { startMetricsServer } from '../lib/metrics.js';
 import { assertWebAuthConfig, completeLogin, startLogin } from './auth.js';
+import { csrfOk, ensureCsrf } from './csrf.js';
 import { dashboardRouter } from './dashboard.js';
 
 /** Public website, Discord OAuth login and the dashboard. */
@@ -71,6 +72,9 @@ app.use(session({
 app.use((req, res, next) => {
   res.locals.user = req.session.user ?? null;
   res.locals.currentPath = req.originalUrl;
+  if (req.session.user) {
+    res.locals.csrf = ensureCsrf(req);
+  }
   next();
 });
 
@@ -168,7 +172,11 @@ app.get('/callback', async (req, res) => {
   }
 });
 
-app.get('/logout', (req, res) => {
+app.post('/logout', (req, res) => {
+  if (!csrfOk(req)) {
+    res.redirect('/');
+    return;
+  }
   req.session.destroy(() => {
     res.clearCookie('connect.sid');
     res.redirect('/');

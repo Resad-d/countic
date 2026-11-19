@@ -37,6 +37,8 @@ services:
       NODE_ENV: production
       # Overrides the host URL from .env, containers must use the compose hostname.
       DATABASE_URL: postgres://countic:${COUNTIC_PG_PASSWORD:-countic}@postgres:5432/countic
+      # The transport must cover the whole compose network.
+      TRANSPORT_HOST: 0.0.0.0
     depends_on:
       postgres:
         condition: service_healthy
