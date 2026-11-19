@@ -73,7 +73,7 @@ export async function deletePanel(input: {
   return call('/panels', { method: 'POST', body: JSON.stringify({ action: 'teardown', ...input }) });
 }
 
-export async function hasManageGuild(guildId: string, userId: string): Promise<boolean> {
+export async function hasManageChannels(guildId: string, userId: string): Promise<boolean> {
   const query = `guildId=${encodeURIComponent(guildId)}&userId=${encodeURIComponent(userId)}`;
   const result = await call<{ allowed: boolean }>(`/permissions?${query}`);
   return result.allowed === true;

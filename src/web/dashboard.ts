@@ -16,7 +16,7 @@ import {
   createPanel,
   deleteCounter,
   deletePanel,
-  hasManageGuild,
+  hasManageChannels,
   listPanels,
   resolveSource,
   saveCounter,
@@ -29,14 +29,14 @@ import {
 
 /**
  * Dashboard routes: server picker and panel management.
- * Every mutation re-checks ManageGuild live through the transport.
+ * Every mutation re-checks Manage Channels live through the transport.
  */
 
 const log = childLogger('dashboard');
 
 const SNOWFLAKE = /^\d{17,20}$/;
 const PLATFORM_ENUM = z.enum(['youtube', 'twitch', 'kick']);
-const MANAGE_GUILD = 32n;
+const MANAGE_CHANNELS = 16n;
 const RESOLVE_FAIL_TEXT = 'Type a channel name first.';
 const REPLACE_TTL_MS = 30_000;
 
@@ -146,12 +146,12 @@ function serialized<T>(guildId: string, task: () => Promise<T>): Promise<T> {
   return run;
 }
 
-function snapshotManage(guild: GuildStub): boolean {
+function snapshotManageChannels(guild: GuildStub): boolean {
   if (guild.owner) {
     return true;
   }
   try {
-    return (BigInt(guild.permissions) & MANAGE_GUILD) !== 0n;
+    return (BigInt(guild.permissions) & MANAGE_CHANNELS) !== 0n;
   } catch {
     return false;
   }
@@ -269,7 +269,7 @@ function guard(req: Request, res: Response): Guarded | null {
 
 async function allowedNow(guildId: string, userId: string): Promise<boolean> {
   try {
-    return await hasManageGuild(guildId, userId);
+    return await hasManageChannels(guildId, userId);
   } catch {
     return false;
   }
@@ -458,7 +458,7 @@ dashboardRouter.get('/', (req, res) => {
     loginRedirect(req, res);
     return;
   }
-  const guilds = user.guilds.filter(snapshotManage).map(guildCard);
+  const guilds = user.guilds.filter(snapshotManageChannels).map(guildCard);
   res.render('dashboard/index', { title: 'Dashboard', guilds });
 });
 
@@ -470,7 +470,7 @@ dashboardRouter.get('/guilds/:guildId', async (req, res) => {
   }
   const guildId = String(req.params.guildId ?? '');
   const stub = user.guilds.find((guild) => guild.id === guildId);
-  if (!SNOWFLAKE.test(guildId) || !stub) {
+  if (!SNOWFLAKE.test(guildId) || !stub || !snapshotManageChannels(stub)) {
     res.status(404).render('404');
     return;
   }
@@ -511,7 +511,7 @@ dashboardRouter.get('/guilds/:guildId/:platform', async (req, res) => {
   const guildId = String(req.params.guildId ?? '');
   const stub = user.guilds.find((guild) => guild.id === guildId);
   const platform = PLATFORMS.find((entry) => entry === req.params.platform);
-  if (!SNOWFLAKE.test(guildId) || !stub || !platform) {
+  if (!SNOWFLAKE.test(guildId) || !stub || !platform || !snapshotManageChannels(stub)) {
     res.status(404).render('404');
     return;
   }
@@ -558,7 +558,7 @@ dashboardRouter.get('/guilds/:guildId/replace/:platform', async (req, res) => {
   const guildId = String(req.params.guildId ?? '');
   const stub = user.guilds.find((guild) => guild.id === guildId);
   const platform = PLATFORMS.find((entry) => entry === req.params.platform);
-  if (!SNOWFLAKE.test(guildId) || !stub || !platform) {
+  if (!SNOWFLAKE.test(guildId) || !stub || !platform || !snapshotManageChannels(stub)) {
     res.status(404).render('404');
     return;
   }
@@ -611,7 +611,7 @@ dashboardRouter.post('/guilds/:guildId/resolve', dashPostLimiter, async (req, re
   const detail = `resolve:${parsed.data.platform}`;
   if (!(await allowedNow(guildId, user.id))) {
     await record(req, guildId, detail, false);
-    setFlash(req, { kind: 'error', text: 'You need Manage Server permission for that.' });
+    setFlash(req, { kind: 'error', text: 'You need Manage Channels permission for that.' });
     res.redirect(platformPath(guildId, parsed.data.platform));
     return;
   }
@@ -651,7 +651,7 @@ dashboardRouter.post('/guilds/:guildId/panels', dashPostLimiter, async (req, res
   }
   if (!(await allowedNow(guildId, user.id))) {
     await record(req, guildId, parsed.data.action, false);
-    setFlash(req, { kind: 'error', text: 'You need Manage Server permission for that.' });
+    setFlash(req, { kind: 'error', text: 'You need Manage Channels permission for that.' });
     res.redirect(guildPath(guildId));
     return;
   }
@@ -869,7 +869,7 @@ dashboardRouter.post('/guilds/:guildId/counters', dashPostLimiter, async (req, r
       req,
       res,
       false,
-      'You need Manage Server permission for that.',
+      'You need Manage Channels permission for that.',
       platformPath(guildId, parsed.data.platform),
       {},
       403,

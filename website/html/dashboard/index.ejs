@@ -10,7 +10,7 @@
 
   <main class="dash-main">
     <h1 class="h3 fw-bold mb-1">Your servers</h1>
-    <p class="text-body-secondary mb-4">Servers where you have Manage Server permission. Pick one to manage its stat panels.</p>
+    <p class="text-body-secondary mb-4">Servers where you have Manage Channels permission. Pick one to manage its stat panels.</p>
 
     <div class="dash-guild-grid">
       <% guilds.forEach((entry) => { %>
@@ -27,7 +27,7 @@
       <% if (guilds.length === 0) { %>
       <div class="dash-empty">
         <img src="/img/logo.svg" width="44" height="44" alt="">
-        <p class="mt-3 mb-2">No servers where you have Manage Server permission.</p>
+        <p class="mt-3 mb-2">No servers where you have Manage Channels permission.</p>
         <a class="btn btn-discord" href="/add">Invite Countic</a>
         <p class="text-body-secondary small mt-3 mb-0">Servers appear here once Countic was added to one you manage.</p>
       </div>

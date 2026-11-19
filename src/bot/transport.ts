@@ -135,7 +135,7 @@ function shardIdForGuild(guildId: string, shardCount: number): number {
   return Number((BigInt(guildId) >> 22n) % BigInt(shardCount));
 }
 
-async function checkManageGuild(client: Client, guildId: string, userId: string): Promise<boolean> {
+async function checkManageChannels(client: Client, guildId: string, userId: string): Promise<boolean> {
   try {
     if (!client.shard) {
       const guild = client.guilds.cache.get(guildId);
@@ -143,7 +143,7 @@ async function checkManageGuild(client: Client, guildId: string, userId: string)
         return false;
       }
       const member = await guild.members.fetch(userId).catch(() => null);
-      return member?.permissions.has(PermissionFlagsBits.ManageGuild) ?? false;
+      return member?.permissions.has(PermissionFlagsBits.ManageChannels) ?? false;
     }
     const allowed = (await client.shard.broadcastEval(
       (c, ctx) => {
@@ -153,11 +153,11 @@ async function checkManageGuild(client: Client, guildId: string, userId: string)
         }
         return guild.members
           .fetch(ctx.userId)
-          .then((member) => member.permissions.has(BigInt(ctx.manageGuild)))
+          .then((member) => member.permissions.has(BigInt(ctx.manageChannels)))
           .catch(() => false);
       },
       {
-        context: { guildId, userId, manageGuild: Number(PermissionFlagsBits.ManageGuild) },
+        context: { guildId, userId, manageChannels: Number(PermissionFlagsBits.ManageChannels) },
         shard: shardIdForGuild(guildId, client.shard.count),
       },
     )) === true;
@@ -417,7 +417,7 @@ async function route(client: Client, providers: Providers, req: IncomingMessage,
       send(res, 400, { error: 'guildId and userId are required snowflakes' });
       return;
     }
-    send(res, 200, { allowed: await checkManageGuild(client, guildId, userId) });
+    send(res, 200, { allowed: await checkManageChannels(client, guildId, userId) });
     return;
   }
   send(res, 404, { error: 'not found' });
