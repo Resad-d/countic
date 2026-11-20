@@ -2,6 +2,12 @@ name: countic
 
 # postgres + migrate + bot + web.
 
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
 services:
   postgres:
     image: postgres:16-alpine
@@ -16,6 +22,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 12
+    logging: *logging
 
   migrate:
     build: .
@@ -45,6 +52,7 @@ services:
       migrate:
         condition: service_completed_successfully
     restart: unless-stopped
+    logging: *logging
 
   web:
     build: .
@@ -71,6 +79,7 @@ services:
       migrate:
         condition: service_completed_successfully
     restart: unless-stopped
+    logging: *logging
 
 volumes:
   pgdata:

@@ -8,6 +8,8 @@ Live YouTube, Twitch and Kick statistics rendered as Discord voice channel names
 
 Point Countic at a creator and it keeps a set of voice channel names up to date with their live numbers, on YouTube, Twitch and Kick. Manage everything from the web dashboard or slash commands, with custom templates and number formats.
 
+Countic is the successor of the Discord bot previously known as YouTube Stats, rewritten from scratch.
+
 ## Requirements
 
 - Docker with the compose plugin, or Node 24 with a Postgres database
