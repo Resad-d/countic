@@ -31,7 +31,7 @@ export const guilds = pgTable('guilds', {
  * sourceName: handle shown to users, twitch display name or kick username
  * reason: last known disable reason
  * lastCheckedAt: last scheduler fetch, null means due immediately
- * lastStats: raw numbers from the last fetch that changed something
+ * lastStats: raw numbers from the last fetch that changed something, a null value means offline
  */
 export const panels = pgTable('panels', {
   id: serial('id').primaryKey(),
@@ -42,7 +42,7 @@ export const panels = pgTable('panels', {
   sourceName: text('source_name'),
   reason: text('reason'),
   lastCheckedAt: timestamp('last_checked_at', { withTimezone: true }),
-  lastStats: jsonb('last_stats').$type<Record<string, number>>(),
+  lastStats: jsonb('last_stats').$type<Record<string, number | null>>(),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [

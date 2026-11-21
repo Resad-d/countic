@@ -11,7 +11,7 @@ type CounterNameInput = {
   numberFormat: 'compact' | 'full';
 };
 
-type StatsShape = { sourceName: string; values: Partial<Record<string, number>> };
+type StatsShape = { sourceName: string; values: Partial<Record<string, number | null>> };
 
 const MAX_NAME_LENGTH = 100;
 
@@ -28,8 +28,11 @@ function renderUnclipped(
     return null;
   }
   const raw = counter.type === 'category' ? undefined : stats?.values[counter.type];
-  // Null stats means not fetched yet, a missing value in real stats means the stream is offline.
-  const value = raw === undefined ? (stats === null ? PENDING_LABEL : OFFLINE_LABEL) : formatCount(raw, counter.numberFormat, locale);
+  // Null stats means not fetched yet, omitted stats hold the last name, category only ever renders its name.
+  if (stats !== null && raw === undefined && counter.type !== 'category') {
+    return null;
+  }
+  const value = raw === null ? OFFLINE_LABEL : raw === undefined ? PENDING_LABEL : formatCount(raw, counter.numberFormat, locale);
   return renderTemplate(template, { name: stats?.sourceName ?? '', [counter.type]: value });
 }
 

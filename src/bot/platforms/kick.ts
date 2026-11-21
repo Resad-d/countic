@@ -104,7 +104,7 @@ export function createKickProvider(clientId: string, clientSecret: string): Plat
             sourceName,
             values: {
               followers,
-              viewers: offline ? undefined : channel.stream?.viewer_count,
+              viewers: offline ? null : channel.stream?.viewer_count,
             },
           });
         } catch (err) {

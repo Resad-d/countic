@@ -18,10 +18,14 @@ export type SourceKind =
   | 'twitch-login'
   | 'kick-slug';
 
-/** Numbers for one source. A missing key means the platform has no such stat or it is unavailable. */
+/**
+ * Numbers for one source.
+ * A null value means the stream went offline, only live stats emit it.
+ * A missing key means the stat is unavailable, counters hold their last rendered name.
+ */
 export type Stats = {
   sourceName: string;
-  values: Partial<Record<StatKey, number>>;
+  values: Partial<Record<StatKey, number | null>>;
 };
 
 /**

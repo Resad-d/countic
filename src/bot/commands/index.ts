@@ -9,7 +9,7 @@ import type {
   SlashCommandSubcommandsOnlyBuilder,
 } from 'discord.js';
 import { counterName } from '../../lib/counters/names.js';
-import { DEFAULT_TEMPLATES } from '../../lib/counters/templates.js';
+import { DEFAULT_TEMPLATES, PENDING_LABEL } from '../../lib/counters/templates.js';
 import { customize } from './customize.js';
 import { help } from './help.js';
 import { panel } from './panel.js';
@@ -66,18 +66,16 @@ export type ModalHandler = ComponentHandler & {
 /**
  * Rendered counter name for the status and customize views.
  * Before the first scheduler tick there are no numbers, so the raw template shows.
+ * A held stat has no snapshot value, so the pending dots stand in.
  */
 export function counterPreview(
   counter: { type: string; template: string | null; numberFormat: 'compact' | 'full' },
   platform: Platform,
-  stats: { sourceName: string; values: Partial<Record<string, number>> } | null,
+  stats: { sourceName: string; values: Partial<Record<string, number | null>> } | null,
   locale: string,
 ): string {
   if (stats) {
-    const rendered = counterName(counter, platform, stats, locale);
-    if (rendered !== null) {
-      return rendered;
-    }
+    return counterName(counter, platform, stats, locale) ?? PENDING_LABEL;
   }
   const defaults = DEFAULT_TEMPLATES[platform] as Partial<Record<string, string>>;
   return counter.template ?? defaults[counter.type] ?? '';

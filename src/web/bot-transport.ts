@@ -97,7 +97,7 @@ export interface DashPanel {
   sourceId: string | null;
   sourceName: string | null;
   lastCheckedAt: string | null;
-  lastStats: Record<string, number> | null;
+  lastStats: Record<string, number | null> | null;
   counters: DashCounter[];
 }
 

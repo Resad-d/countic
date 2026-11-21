@@ -79,8 +79,9 @@ export function createTwitchProvider(clientId: string, clientSecret: string): Pl
         }
       }
 
-      // Live viewers, offline sources simply have no key.
+      // Live viewers, a settled call reports offline as null, a failed one leaves the stat out.
       const viewers = new Map<string, number>();
+      const streamsOk = new Set<string>();
       const liveIds = sourceIds.filter((id) => names.has(id));
       for (let i = 0; i < liveIds.length; i += BATCH_SIZE) {
         const batch = liveIds.slice(i, i + BATCH_SIZE);
@@ -90,6 +91,9 @@ export function createTwitchProvider(clientId: string, clientSecret: string): Pl
         }
         try {
           const body = (await helix(`streams?${params.toString()}`)) as StreamsBody;
+          for (const id of batch) {
+            streamsOk.add(id);
+          }
           for (const stream of body.data ?? []) {
             if (stream.user_id && typeof stream.viewer_count === 'number') {
               viewers.set(stream.user_id, stream.viewer_count);
@@ -110,7 +114,7 @@ export function createTwitchProvider(clientId: string, clientSecret: string): Pl
           sourceName: names.get(id) ?? id,
           values: {
             followers: followers,
-            viewers: viewers.get(id),
+            viewers: streamsOk.has(id) ? (viewers.get(id) ?? null) : undefined,
           },
         });
       }

@@ -104,7 +104,7 @@ export async function markChecked(panelId: number): Promise<void> {
   await db.update(panels).set({ lastCheckedAt: sql`now()` }).where(eq(panels.id, panelId));
 }
 
-export async function markCheckedWithStats(panelId: number, stats: Record<string, number>): Promise<void> {
+export async function markCheckedWithStats(panelId: number, stats: Record<string, number | null>): Promise<void> {
   await db
     .update(panels)
     .set({ lastCheckedAt: sql`now()`, lastStats: stats })
@@ -149,7 +149,7 @@ export type PanelRow = {
   sourceName: string | null;
   reason: string | null;
   lastCheckedAt: Date | null;
-  lastStats: Record<string, number> | null;
+  lastStats: Record<string, number | null> | null;
 };
 
 export async function selectPanel(guildId: string, platform: Platform): Promise<PanelRow | null> {

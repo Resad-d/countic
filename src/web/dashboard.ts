@@ -390,12 +390,13 @@ type PanelView = {
   counters: CounterView[];
 };
 
-function statValue(counter: DashCounter, stats: { values: Record<string, number> } | null, locale: string): string {
+function statValue(counter: DashCounter, stats: { values: Record<string, number | null> } | null, locale: string): string {
   const raw = stats?.values[counter.type];
-  if (raw === undefined) {
-    return stats === null ? PENDING_LABEL : OFFLINE_LABEL;
+  // A null value means the stream went offline, missing keys render as pending dots.
+  if (raw === null) {
+    return OFFLINE_LABEL;
   }
-  return formatCount(raw, counter.numberFormat, locale);
+  return raw === undefined ? PENDING_LABEL : formatCount(raw, counter.numberFormat, locale);
 }
 
 function panelView(platform: Platform, panel: DashPanel | undefined, locale: string): PanelView {
