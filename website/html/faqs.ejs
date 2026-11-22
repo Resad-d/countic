@@ -41,9 +41,10 @@
         },
         {
           question: 'How do I rename the category?',
-          answer: `Run <code>/customize template</code> and pick the category counter. Use <code>[name]</code> for the tracked
-            channel's name and write the rest as plain text, for example <code>[name] • My Community</code>. The default
-            template shows the channel name followed by the platform, like <code>[name] • YouTube</code>.`,
+          answer: `Run <code>/customize template</code> and pick the category counter, then write any plain text, for
+            example <code>[name] • My Community</code> or just <code>My Community</code>. <code>[name]</code> is optional
+            and inserts the tracked channel's name, so a template without it keeps a fixed label that no longer follows
+            channel renames. Stat placeholders like <code>[subs]</code> are not allowed in the category.`,
         },
         {
           question: 'Can I change the language?',

@@ -144,11 +144,8 @@
         surrounded by whatever text you like. Example template: <code>Subs: [subs]</code>. Leaving the dialog
         empty resets the counter to its default name.</p>
       <p>The category is named with <code>[name]</code> plus plain text, like <code>[name] • My Community</code>.
-        Because <code>[name]</code> is required, the tracked channel's name always stays part of the category.
-        If you want a category name without the channel name, create your own category in Discord and drag the
-        counter channels into it, Countic keeps renaming them wherever they sit. Be careful with permissions
-        while moving things: if the bot loses access to a counter, it can no longer rename it and the counter
-        stops updating.</p>
+        <code>[name]</code> is optional, so plain text alone works too, for example <code>My Community</code> keeps a
+        fixed label that no longer follows channel renames. Stat placeholders are not allowed in the category.</p>
       <p><code>/customize format</code> switches a counter between compact (<code>1.23M</code>) and full
         (<code>1,230,000</code>) numbers. Subscriber and follower counters start compact, the rest starts full,
         and the separators follow the language set in your Discord server settings, so a Turkish server sees

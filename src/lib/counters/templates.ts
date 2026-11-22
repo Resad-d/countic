@@ -54,9 +54,7 @@ export function validateTemplate(
     return { ok: true, template: null };
   }
   if (type === 'category') {
-    if (!candidate.includes('[name]')) {
-      return { ok: false, code: 'need-placeholder', placeholder: '[name]' };
-    }
+    // A category has no stat value, so stat placeholders would render the pending dots forever.
     if (new RegExp(`\\[(${COUNTER_TYPES.join('|')})\\]`).test(candidate)) {
       return { ok: false, code: 'category-no-stats' };
     }

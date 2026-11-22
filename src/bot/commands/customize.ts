@@ -187,13 +187,15 @@ export const customize: CommandDef = {
     if (sub === 'template') {
       const defaults = DEFAULT_TEMPLATES[platform] as Partial<Record<string, string>>;
       const current = counter.template ?? defaults[counterType] ?? '';
-      const placeholder = counterType === 'category' ? '[name]' : `[${counterType}]`;
+      const label = counterType === 'category'
+        ? ctx.t('customize.modalLabelCategory')
+        : ctx.t('customize.modalLabel', { placeholder: `[${counterType}]` });
       const modal = new ModalBuilder()
         .setCustomId(`customize:template:${counter.id}`)
         .setTitle(ctx.t('customize.modalTitle', { counter: counterText(ctx.t, counterType) }).slice(0, 45))
         .addLabelComponents(
           new LabelBuilder()
-            .setLabel(ctx.t('customize.modalLabel', { placeholder }).slice(0, 45))
+            .setLabel(label.slice(0, 45))
             .setDescription(ctx.t('customize.modalDesc').slice(0, 100))
             .setTextInputComponent(
               new TextInputBuilder()

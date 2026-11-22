@@ -74,8 +74,8 @@
           <li><strong>template</strong> edits a counter name in a dialog, prefilled with the current template. Leave it empty to reset to the default, the new name applies on the next update pass.</li>
           <li><strong>format</strong> switches a counter between compact (<code>1.23M</code>) and full (<code>1,230,000</code>). Subscriber and follower counters start compact, view, video and viewer counters start full. The category has no numbers and no format.</li>
         </ul>
-        <p><strong>Placeholders:</strong> every stat counter uses its own value: <code>[subs]</code> <code>[views]</code> <code>[videos]</code> <code>[followers]</code> <code>[viewers]</code>. The category uses <code>[name]</code>, the tracked channel's name, plus plain text.</p>
-        <p>The category template must contain <code>[name]</code>, so the tracked channel's name always stays part of the category. If you want a category name without the channel name, create your own category in Discord and drag the counter channels into it, Countic keeps renaming the counters wherever they sit. Be careful with permissions while moving things: if the bot loses access to a counter, it can no longer rename it and the counter stops updating.</p>
+        <p><strong>Placeholders:</strong> every stat counter uses its own value: <code>[subs]</code> <code>[views]</code> <code>[videos]</code> <code>[followers]</code> <code>[viewers]</code>. The category can use <code>[name]</code>, the tracked channel's name, plus plain text.</p>
+        <p>The category template is free text and <code>[name]</code> is optional. Without it the category keeps a fixed label that no longer follows channel renames, for example <code>My Community</code>. Stat placeholders are not allowed in the category.</p>
         <p>Templates must stay within Discord's 100 character channel name limit, checked with sample numbers before saving.</p>
         <pre class="bg-dark text-white p-3 rounded border">/customize template counter:subs</pre>
         <p>Example template: <code>Subs: [subs]</code></p>
